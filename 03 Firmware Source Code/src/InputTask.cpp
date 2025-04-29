@@ -126,7 +126,6 @@ void InputTask::buttonTaskFunc(void* params) {
     InputTask* inputTask = static_cast<InputTask*>(params);
     StateMachine* stateMachine = inputTask->m_stateMachine;
 
-    bool flag = 0;
     for (;;) {
         // 轮询按钮
         // TODO: 实现按钮状态检测
@@ -146,18 +145,8 @@ void InputTask::buttonTaskFunc(void* params) {
             stateMachine->postEvent(&event);
         }
 
-        Serial.printf("[%s]::%d - (button) - button value: %d\n", __func__, __LINE__, digitalRead(0));
-        if (flag) {
-            stateMachine->getDisplayContext()->drawImage();
-            Serial.printf("[%s]::%d - (button) - drawImage\n", __func__, __LINE__);
-        } else {
-            stateMachine->getDisplayContext()->drawRect();
-            Serial.printf("[%s]::%d - (button) - drawRect\n", __func__, __LINE__);
-        }
-        flag = !flag;
-
         // 按钮检测延迟
-        vTaskDelay(pdMS_TO_TICKS(1000));
+        vTaskDelay(pdMS_TO_TICKS(100));
     }
 }
 

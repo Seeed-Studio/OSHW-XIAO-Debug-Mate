@@ -105,12 +105,16 @@ void StateMachine::stateMachineTaskFunc(void* params) {
     for (;;) {
         Serial.printf("[%s]::%d - main loop\n", __func__, __LINE__);
         // 等待事件队列
-        if (xQueueReceive(machine->m_eventQueue, eventBuffer, portMAX_DELAY) == pdTRUE) {
+        // if (xQueueReceive(machine->m_eventQueue, eventBuffer, portMAX_DELAY) == pdTRUE) {
+        if (xQueueReceive(machine->m_eventQueue, eventBuffer, (TickType_t) 100) == pdTRUE) {
             Event* event = reinterpret_cast<Event*>(eventBuffer);
 
             // 处理事件
             machine->handleEvent(event);
         }
+
+        lv_timer_handler(); /* let the GUI do its work */
+
         vTaskDelay(pdMS_TO_TICKS(100));
     }
 }
@@ -253,10 +257,6 @@ State* StateMachine::getCurrentState() {
 
 void StateMachine::setDisplayContext(DisplayContext* display) {
     m_displayContext = display;
-}
-
-DisplayContext* StateMachine::getDisplayContext() {
-    return m_displayContext;
 }
 
 void StateMachine::requestDisplayUpdate() {
