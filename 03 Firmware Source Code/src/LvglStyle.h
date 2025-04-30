@@ -14,6 +14,10 @@ extern lv_style_t style_font_14;
 extern lv_style_t style_font_20;
 extern lv_style_t style_font_22;
 extern lv_style_t style_font_28;
+extern lv_style_t style_font_32;
+extern lv_style_t style_font_36;
+extern lv_style_t style_font_40;
+
 
 void initStyle();
 

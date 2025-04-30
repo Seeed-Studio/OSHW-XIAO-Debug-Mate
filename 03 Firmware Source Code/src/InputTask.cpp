@@ -104,47 +104,45 @@ void InputTask::wheelTaskFunc(void* params) {
         // TODO: 实现滚轮状态检测
 
 #ifdef INPUT_DEBUG
-        Serial.printf("[%s]::%d - for loop (Wheel)\n", __func__, __LINE__);
+        LOGI();
 #endif
         bool wheelMoved = false;
         bool isClockwise = true;
-        
+
         if (wheelMoved) {
             // 创建滚轮事件
             WheelEvent event(isClockwise);
-            
+
             // 发送事件到状态机
             stateMachine->postEvent(&event);
         }
-        
+
         // 滚轮检测延迟
         vTaskDelay(pdMS_TO_TICKS(100));
     }
 }
 
-void InputTask::buttonTaskFunc(void* params) {
+void InputTask::buttonTaskFunc(void* params)
+{
     InputTask* inputTask = static_cast<InputTask*>(params);
     StateMachine* stateMachine = inputTask->m_stateMachine;
-
-    for (;;) {
-        // 轮询按钮
-        // TODO: 实现按钮状态检测
-
-#ifdef INPUT_DEBUG
-        Serial.printf("[%s]::%d - for loop (Button)\n", __func__, __LINE__);
-#endif
-        bool buttonPressed = digitalRead(BOOT_BTN) == LOW;
-        int buttonId = 0;
-
-        if (buttonPressed) {
-            Serial.printf("[%s]::%d - (button) - button is Pressed\n", __func__, __LINE__);
-            // 创建按钮按下事件
-            ButtonEvent event(EVENT_BUTTON_PRESS, buttonId);
-
-            // 发送事件到状态机
+    // 轮询按钮
+    for (;;)
+    {
+        if(m_buttonAction == ButtonAction::ButtonShortPress)
+        {
+            LOGI("BtnPress");
+            m_buttonAction = ButtonAction::NoneAction;
+            ButtonEvent event(EVENT_BUTTON_PRESS, BOOT_BTN);
             stateMachine->postEvent(&event);
         }
-
+        else if(m_buttonAction == ButtonAction::ButtonLongPress)
+        {
+            LOGI("BtnLongPress");
+            m_buttonAction = ButtonAction::NoneAction;
+            ButtonEvent event(EVENT_BUTTON_LONGPRESS, BOOT_BTN);
+            stateMachine->postEvent(&event);
+        }
         // 按钮检测延迟
         vTaskDelay(pdMS_TO_TICKS(100));
     }
@@ -159,7 +157,7 @@ void InputTask::touchTaskFunc(void* params) {
         // TODO: 实现触摸屏状态检测
 
 #ifdef INPUT_DEBUG
-        Serial.printf("[%s]::%d - for loop (Touch)\n", __func__, __LINE__);
+        LOGI();
 #endif
         bool touchActive = false;
         int touchX = 0;
@@ -168,7 +166,7 @@ void InputTask::touchTaskFunc(void* params) {
         if (touchActive) {
             // 创建触摸事件
             TouchEvent event(EVENT_TOUCH_PRESS, touchX, touchY);
-            
+
             // 发送事件到状态机
             stateMachine->postEvent(&event);
         }
@@ -177,3 +175,35 @@ void InputTask::touchTaskFunc(void* params) {
         vTaskDelay(pdMS_TO_TICKS(100));
     }
 }
+
+void InputTask::btnInterruptHandler()
+{
+    static unsigned long lastInterruptTime = 0;
+    unsigned long interruptTime = millis();
+    static unsigned long pressStartTime = 0;
+
+    // 如果中断触发的时间间隔小于50ms，认为是抖动
+    if (interruptTime - lastInterruptTime > DEBOUNCE_DELAT) {
+        lastInterruptTime = interruptTime;
+        // 读取按钮的实际状态
+        bool btnState = digitalRead(BOOT_BTN);
+
+        if (btnState == LOW) {
+            // 按下按钮,记录按下时间
+            pressStartTime = millis();
+        } else {
+            unsigned long pressDuration = millis() - pressStartTime;
+            if (pressDuration < 500) {
+                m_buttonAction = ButtonAction::ButtonShortPress;
+            } else if (pressDuration >= LONG_PRESS_DELAY) {
+                m_buttonAction = ButtonAction::ButtonLongPress;
+            } else {
+                m_buttonAction = ButtonAction::ButtonRelease;
+            }
+        }
+    }
+}
+
+
+ButtonAction InputTask::m_buttonAction = ButtonAction::NoneAction;
+

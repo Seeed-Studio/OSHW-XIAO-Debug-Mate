@@ -1,4 +1,6 @@
 #include "MenuStates.h"
+
+#include "FunctionBaudState.h"
 #include "StateManager.h"
 #include "LvglStyle.h"
 
@@ -233,12 +235,11 @@ void MainMenuState::updateDisplay(DisplayContext* display) {
     }
 
     char value[10];
-    int baud_value = 9600;
     float vol = 0;
     float cur = 0;
     float power = 0;
 
-    lv_label_set_text_fmt(m_mainMenu.baud_value, "%d", baud_value);
+    lv_label_set_text_fmt(m_mainMenu.baud_value, "%d", FunctionBaudState::m_baudRate);
 
     snprintf(value, sizeof(value), "%.4f", vol);
     lv_label_set_text(m_mainMenu.vol, value);
@@ -284,85 +285,4 @@ bool FunctionState::handleEvent(StateMachine* machine, const Event* event) {
     }
 }
 
-// Function1State实现
-void Function1State::updateDisplay(DisplayContext* display) {
-    if (!display) {
-        return;
-    }
-    
-    display->lock();
-    
-    // 清屏
-    display->clear();
-    
-    // 绘制标题
-    display->drawText(10, 10, m_title, true);
-    
-    // 绘制功能内容
-    display->drawText(10, 40, "This is Function 1");
-    display->drawText(10, 60, "Press back button to return");
-    
-    // 刷新显示
-    display->refresh();
-    
-    display->unlock();
-}
 
-// ErrorState实现
-ErrorState::ErrorState() 
-    : m_errorCode(0), 
-      m_errorMessage("Unknown error") 
-{
-}
-
-void ErrorState::setError(int code, const char* message) {
-    m_errorCode = code;
-    m_errorMessage = message;
-}
-
-void ErrorState::onEnter() {
-    // 记录错误信息到日志
-}
-
-bool ErrorState::handleEvent(StateMachine* machine, const Event* event) {
-    if (!machine || !event) {
-        return false;
-    }
-    
-    // 任何按钮按下都返回主菜单
-    if (event->getType() == EVENT_BUTTON_PRESS) {
-        State* mainMenu = StateManager::getInstance()->getState(MainMenuState::ID);
-        if (mainMenu) {
-            machine->changeState(mainMenu);
-            return true;
-        }
-    }
-    
-    return false;
-}
-
-void ErrorState::updateDisplay(DisplayContext* display) {
-    if (!display) {
-        return;
-    }
-    
-    display->lock();
-    
-    // 清屏
-    display->clear();
-    
-    // 绘制错误信息
-    display->drawText(10, 10, "ERROR", true);
-    
-    char errorText[32];
-    sprintf(errorText, "Code: %d", m_errorCode);
-    display->drawText(10, 40, errorText);
-    
-    display->drawText(10, 60, m_errorMessage);
-    display->drawText(10, 100, "Press any button to return");
-    
-    // 刷新显示
-    display->refresh();
-    
-    display->unlock();
-}

@@ -103,7 +103,7 @@ void StateMachine::stateMachineTaskFunc(void* params) {
     uint8_t eventBuffer[MAX_EVENT_SIZE];
 
     for (;;) {
-        Serial.printf("[%s]::%d - main loop\n", __func__, __LINE__);
+        // Serial.printf("[%s]::%d - main loop\n", __func__, __LINE__);
         // 等待事件队列
         // if (xQueueReceive(machine->m_eventQueue, eventBuffer, portMAX_DELAY) == pdTRUE) {
         if (xQueueReceive(machine->m_eventQueue, eventBuffer, (TickType_t) 100) == pdTRUE) {
@@ -112,10 +112,9 @@ void StateMachine::stateMachineTaskFunc(void* params) {
             // 处理事件
             machine->handleEvent(event);
         }
-
+        machine->getCurrentState()->updateDisplay(machine->m_displayContext);
         lv_timer_handler(); /* let the GUI do its work */
-
-        vTaskDelay(pdMS_TO_TICKS(100));
+        vTaskDelay(pdMS_TO_TICKS(2000));
     }
 }
 

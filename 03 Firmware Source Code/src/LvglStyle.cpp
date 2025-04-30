@@ -11,6 +11,9 @@ lv_style_t style_font_14;
 lv_style_t style_font_20;
 lv_style_t style_font_22;
 lv_style_t style_font_28;
+lv_style_t style_font_32;
+lv_style_t style_font_36;
+lv_style_t style_font_40;
 
 void initStyle() {
     lv_style_init(&style_screen);
@@ -52,4 +55,13 @@ void initStyle() {
 
     lv_style_init(&style_font_28);
     lv_style_set_text_font(&style_font_28, &lv_font_montserrat_28);
+
+    lv_style_init(&style_font_32);
+    lv_style_set_text_font(&style_font_32, &lv_font_montserrat_32);
+
+    lv_style_init(&style_font_36);
+    lv_style_set_text_font(&style_font_36, &lv_font_montserrat_36);
+
+    lv_style_init(&style_font_40);
+    lv_style_set_text_font(&style_font_40, &lv_font_montserrat_40);
 }

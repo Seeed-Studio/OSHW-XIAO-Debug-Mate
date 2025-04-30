@@ -5,6 +5,10 @@
 #include "MenuStates.h"
 #include "InputTask.h"
 #include "DisplayContext.h"
+#include "FunctionBaudState.h"
+#include "FunctionUartState.h"
+#include "FunctionPowerState.h"
+#include "ErrorState.h"
 
 #include "DapLink.h"
 #include "Global.h"
@@ -21,6 +25,10 @@ StateMachine stateMachine;
 
 // 创建输入任务
 InputTask inputTask;
+// 创建并注册主菜单状态
+
+
+unsigned long startTime = 0;
 
 // 错误处理回调
 void appErrorHandler(int errorCode, const char* errorMsg) {
@@ -51,6 +59,9 @@ void initLVGL() {
 }
 
 void setup() {
+    // 记录程序启动时间
+    startTime = millis();
+
     Serial.begin(9600);
 
     // 硬件初始化
@@ -58,21 +69,27 @@ void setup() {
     initLVGL();
     initStyle();
     initDapLink();
+    // 初始化按钮，配置中断
     pinMode(BOOT_BTN, INPUT_PULLUP);
+    attachInterrupt(digitalPinToInterrupt(BOOT_BTN), InputTask::btnInterruptHandler, CHANGE);
 
     // 注册状态
     StateManager* stateManager = StateManager::getInstance();
 
-    // 创建并注册主菜单状态
     MainMenuState* mainMenu = new MainMenuState();
+    FunctionUartState* uartState = new FunctionUartState();
+    FunctionBaudState* baudState = new FunctionBaudState();
+    FunctionPowerState* powerState = new FunctionPowerState();
     // 添加菜单项
-    mainMenu->addMenuItem("Function 1", Function1State::ID);
-    mainMenu->addMenuItem("Function 2", 3); // 假设Function2State的ID是3
-    mainMenu->addMenuItem("Function 3", 4); // 假设Function3State的ID是4
+    mainMenu->addMenuItem("Function 1", FunctionUartState::ID);
+    mainMenu->addMenuItem("Function 2", FunctionBaudState::ID); // 假设Function2State的ID是3
+    mainMenu->addMenuItem("Function 3", FunctionPowerState::ID); // 假设Function3State的ID是4
     stateManager->registerState(mainMenu);
 
     // 注册功能状态
-    stateManager->registerState(new Function1State());
+    stateManager->registerState(uartState);
+    stateManager->registerState(baudState);
+    stateManager->registerState(powerState);
     // TODO: 注册其他功能状态...
 
     // 创建错误状态
@@ -111,4 +128,5 @@ void setup() {
 
 void loop()
 {
+
 }
