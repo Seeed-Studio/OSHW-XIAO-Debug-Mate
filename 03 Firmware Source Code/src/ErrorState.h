@@ -1,13 +1,8 @@
-//
-// Created by Administrator on 25-4-29.
-//
-
 #ifndef ERRORSTATE_H
 #define ERRORSTATE_H
 
 #include "MenuStates.h"
 #include "StateManager.h"
-
 
 // 错误状态
 class ErrorState : public State {
@@ -29,7 +24,5 @@ public:
     int getID() const override;
     const char* getName() const override;
 };
-
-
 
 #endif //ERRORSTATE_H

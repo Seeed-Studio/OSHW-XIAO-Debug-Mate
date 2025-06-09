@@ -64,18 +64,4 @@ public:
     int getButtonId() const { return m_buttonId; }
 };
 
-// 触摸屏事件
-class TouchEvent : public Event {
-private:
-    int m_x;
-    int m_y;
-    
-public:
-    TouchEvent(EventType type, int x, int y) 
-        : Event(type), m_x(x), m_y(y) {}
-    
-    int getX() const { return m_x; }
-    int getY() const { return m_y; }
-};
-
 #endif // EVENT_H

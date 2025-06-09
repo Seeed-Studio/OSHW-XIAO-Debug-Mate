@@ -1,88 +1,81 @@
-//
-// Created by Administrator on 25-4-29.
-//
-
 #include "FunctionBaudState.h"
 
 FunctionBaudState::FunctionBaudState()
-: FunctionState("FunctionBaudState")
-, m_currentBaudLabel(nullptr)
-, m_nextBaudLabel(nullptr)
-, m_previousBaudLabel(nullptr)
-, m_line(nullptr)
-, m_currentBaudIndex(1)
+    : FunctionState("FunctionBaudState"),
+      m_currentBaudIndex(1),
+      m_currentLedIndex(1),
+      m_exit(false)
 {
+    m_baudStateUI.screen = nullptr;
+    m_baudStateUI.roller = nullptr;
 
+    for (int i = 0; i < NUM_BAUDRATES; i++) {
+        m_baudStateUI.labels[i] = nullptr;
+    }
 }
+
 void FunctionBaudState::onEnter()
 {
-    m_currentBaudLabel = lv_label_create(lv_scr_act());
-    m_nextBaudLabel = lv_label_create(lv_scr_act());
-    m_previousBaudLabel = lv_label_create(lv_scr_act());
-    // 创建一条线对象
-    m_line = lv_line_create(lv_scr_act());
-    // 获取屏幕的高度和宽度
-    lv_coord_t screen_width = lv_disp_get_hor_res(NULL);
-    lv_coord_t screen_height = lv_disp_get_ver_res(NULL);
-    // 计算水平居中时线的 y 坐标
-    lv_coord_t center_y = screen_height / 2;
-    // 定义线的两个端点
-    static lv_point_precise_t line_points[] = {
-        {0, center_y},
-        {screen_width, center_y}
-    };
-    // 设置线的端点
-    lv_line_set_points(m_line, line_points, 2);
-    // 设置线的样式
-    lv_obj_set_style_line_color(m_line, lv_color_hex(0xFFFFFF), 0);
-    lv_obj_set_style_line_width(m_line, 2, 0);
+    m_exit = false;
 
-    char buf[16];
-    sprintf(buf, "%d", m_baudRateList[m_currentBaudIndex]);
-    lv_label_set_text(m_currentBaudLabel, buf);
-    lv_obj_set_pos(m_currentBaudLabel, (screen_width/2 - 20), (screen_height/2-30));
-    lv_obj_set_style_text_color(m_currentBaudLabel, lv_color_hex(0xDDE62F), LV_PART_MAIN);
-    lv_obj_add_style(m_currentBaudLabel, &style_font_22, 0);
-
-    uint8_t prevBaudIndex = m_currentBaudIndex - 1;
-    if(prevBaudIndex < 0){
-        m_currentBaudIndex = sizeof(m_baudRateList) / sizeof(m_baudRateList[0]) ;
+    if (m_baudStateUI.screen != nullptr) {
+        if (lv_scr_act() != m_baudStateUI.screen) {
+            lv_scr_load(m_baudStateUI.screen);
+        }
+        return;
     }
-    sprintf(buf, "%d", m_baudRateList[prevBaudIndex]);
-    lv_label_set_text(m_previousBaudLabel, buf);
-    lv_obj_set_pos(m_previousBaudLabel, 20, (screen_height/2+10));
-    lv_obj_set_style_text_color(m_previousBaudLabel, lv_color_hex(0xFFFFFF), LV_PART_MAIN);
-    lv_obj_add_style(m_previousBaudLabel, &style_font_22, 0);
 
-    uint8_t nextBaudIndex = m_currentBaudIndex + 1;
-    if(nextBaudIndex >= sizeof(m_baudRateList) / sizeof(m_baudRateList[0])){
-        nextBaudIndex = 0;
+    m_baudStateUI.screen = lv_obj_create(NULL);
+    lv_obj_add_style(m_baudStateUI.screen, &style_screen, 0);
+
+    m_baudStateUI.roller = lv_obj_create(m_baudStateUI.screen);
+    lv_obj_set_size(m_baudStateUI.roller, 272, 88);
+    lv_obj_center(m_baudStateUI.roller);
+    lv_obj_set_scroll_dir(m_baudStateUI.roller, LV_DIR_HOR);
+    lv_obj_set_scroll_snap_x(m_baudStateUI.roller, LV_SCROLL_SNAP_CENTER);
+    lv_obj_set_scrollbar_mode(m_baudStateUI.roller, LV_SCROLLBAR_MODE_OFF);
+    lv_obj_set_style_bg_color(m_baudStateUI.roller, lv_color_hex(0x000000), 0);
+    lv_obj_set_style_pad_column(m_baudStateUI.roller, 0, LV_PART_MAIN);
+    lv_obj_set_style_border_width(m_baudStateUI.roller, 0, LV_PART_MAIN);
+
+    lv_obj_t* center_line = lv_obj_create(m_baudStateUI.screen);
+    lv_obj_set_size(center_line, 272, 4);
+    lv_obj_set_style_bg_color(center_line, lv_color_hex(0xACE62F), 0);
+    lv_obj_set_style_bg_opa(center_line, LV_OPA_COVER, 0);
+    lv_obj_set_style_border_width(center_line, 0, 0);
+    lv_obj_align_to(center_line, m_baudStateUI.roller, LV_ALIGN_CENTER, 0, 0);
+
+    for (int i = 0; i < NUM_BAUDRATES; i++) {
+        lv_obj_t* item = lv_obj_create(m_baudStateUI.roller);
+        lv_obj_set_height(item, 40);
+        lv_obj_clear_flag(item, LV_OBJ_FLAG_SCROLLABLE);
+        lv_obj_set_style_bg_opa(item, LV_OPA_TRANSP, 0);
+        lv_obj_set_style_border_width(item, 0, 0);
+        lv_obj_set_style_pad_all(item, 0, 0);
+
+        static lv_point_precise_t p[] = {{0, 0}, {0, 10}};
+        lv_obj_t* line = lv_line_create(m_baudStateUI.roller);
+        lv_obj_add_style(line, &style_focus_uart_line, LV_PART_MAIN);
+        lv_line_set_points(line, p, 2);
+
+        m_baudStateUI.labels[i] = lv_label_create(item);
+        lv_label_set_text(m_baudStateUI.labels[i], String(m_baudRateList[i]).c_str());
+        lv_obj_set_style_text_font(m_baudStateUI.labels[i], &lv_font_montserrat_26, 0);
+        lv_obj_set_style_text_color(m_baudStateUI.labels[i], lv_color_hex(0xFFFFFF), LV_PART_MAIN);
+        lv_obj_center(m_baudStateUI.labels[i]);
+
+        lv_obj_align_to(item, m_baudStateUI.roller, LV_ALIGN_CENTER, i * 100, (i % 2) ? -30 : 30);
+        lv_obj_align_to(line, m_baudStateUI.roller, LV_ALIGN_CENTER, i * 100, (i % 2) ? -5 : 5);
     }
-    sprintf(buf, "%d", m_baudRateList[nextBaudIndex]);
-    lv_label_set_text(m_nextBaudLabel, buf);
-    lv_obj_set_pos(m_nextBaudLabel, (screen_width - 100), (screen_height/2+10));
-    lv_obj_set_style_text_color(m_nextBaudLabel, lv_color_hex(0xFFFFFF), LV_PART_MAIN);
-    lv_obj_add_style(m_nextBaudLabel, &style_font_22, 0);
+
+    lv_obj_scroll_to_x(m_baudStateUI.roller, 100 * m_currentBaudIndex, LV_ANIM_OFF);
+    lv_obj_set_style_text_color(m_baudStateUI.labels[m_currentBaudIndex], lv_color_hex(0xACE62F), LV_PART_MAIN);
+
+    lv_scr_load(m_baudStateUI.screen);
 }
 
 void FunctionBaudState::onExit()
 {
-    if(m_currentBaudLabel != nullptr){
-        lv_obj_del(m_currentBaudLabel);
-        m_currentBaudLabel = nullptr;
-    }
-    if(m_nextBaudLabel != nullptr){
-        lv_obj_del(m_nextBaudLabel);
-        m_nextBaudLabel = nullptr;
-    }
-    if(m_previousBaudLabel != nullptr){
-        lv_obj_del(m_previousBaudLabel);
-        m_previousBaudLabel = nullptr;
-    }
-    if(m_line != nullptr){
-        lv_obj_del(m_line);
-        m_line = nullptr;
-    }
 }
 
 bool FunctionBaudState::handleEvent(StateMachine* machine, const Event* event)
@@ -92,24 +85,58 @@ bool FunctionBaudState::handleEvent(StateMachine* machine, const Event* event)
     }
 
     switch (event->getType()) {
-    case EVENT_WHEEL_CLOCKWISE: {
-            // 滚轮顺时针，选择下一项
+        case EVENT_WHEEL_CLOCKWISE: {
+            if (m_currentBaudIndex == 8) break;
+            lv_obj_set_style_text_color(m_baudStateUI.labels[m_currentBaudIndex], lv_color_hex(0xFFFFFF), LV_PART_MAIN);
+            lv_obj_set_style_text_color(m_baudStateUI.labels[++m_currentBaudIndex], lv_color_hex(0xACE62F), LV_PART_MAIN);
+            scroll_anim(m_baudStateUI.roller, 100 * m_currentBaudIndex);
+            break;
+        }
+
+        case EVENT_WHEEL_COUNTERCLOCKWISE: {
+            if (m_currentBaudIndex == 0) break;
+            lv_obj_set_style_text_color(m_baudStateUI.labels[m_currentBaudIndex], lv_color_hex(0xFFFFFF), LV_PART_MAIN);
+            lv_obj_set_style_text_color(m_baudStateUI.labels[--m_currentBaudIndex], lv_color_hex(0xACE62F), LV_PART_MAIN);
+            scroll_anim(m_baudStateUI.roller, 100 * m_currentBaudIndex);
+            break;
+        }
+
+        case EVENT_BUTTON_PRESS: {
+            const ButtonEvent* buttonEvent = static_cast<const ButtonEvent*>(event);
+            if (buttonEvent->getButtonId() == BOOT_BTN) {
+                int stateId = FunctionUartState::ID;
+                State* nextState = StateManager::getInstance()->getState(stateId);
+                if (nextState) {
+                    m_exit = true;
+                    changeBaudRate();
+                    machine->requestDisplayUpdate();
+                    machine->changeState(nextState);
+                    break;
+                }
+            }
+            return false;
+        }
+
+        case EVENT_BUTTON_LONGPRESS: {
+            const ButtonEvent* buttonEvent = static_cast<const ButtonEvent*>(event);
+            if (buttonEvent->getButtonId() == BOOT_BTN) {
+                int stateId = FunctionUartState::ID;
+                State* nextState = StateManager::getInstance()->getState(stateId);
+                if (nextState) {
+                    m_exit = true;
+                    machine->requestDisplayUpdate();
+                    machine->changeState(nextState);
+                    break;
+                }
+            }
+            return false;
+        }
+
+        default:
             return false;
     }
 
-    case EVENT_WHEEL_COUNTERCLOCKWISE: {
-            // 滚轮逆时针，选择上一项
-            return false;
-    }
-
-    case EVENT_BUTTON_PRESS: {
-            // 按钮按下，进入选中的功能
-            return false;
-    }
-
-    default:
-        return false;
-    }
+    return true;
 }
 
 void FunctionBaudState::updateDisplay(DisplayContext* display)
@@ -118,34 +145,47 @@ void FunctionBaudState::updateDisplay(DisplayContext* display)
         return;
     }
 
-    char buf[16];
-    sprintf(buf, "%d", m_baudRateList[m_currentBaudIndex]);
-    lv_label_set_text(m_currentBaudLabel, buf);
+    static bool background = true;
+    static int lastTime = millis();
 
-    // Correctly calculate the previous baud index
-    uint8_t prevBaudIndex = (m_currentBaudIndex == 0) ? (sizeof(m_baudRateList) / sizeof(m_baudRateList[0]) - 1) : m_currentBaudIndex - 1;
-    sprintf(buf, "%d", m_baudRateList[prevBaudIndex]);
-    lv_label_set_text(m_previousBaudLabel, buf);
+    if (m_exit) {
+        background = false;
+    }
+    display->updateBaudLED(m_currentLedIndex, background);
 
-    // Correctly calculate the next baud index
-    uint8_t nextBaudIndex = (m_currentBaudIndex == (sizeof(m_baudRateList) / sizeof(m_baudRateList[0]) - 1)) ? 0 : m_currentBaudIndex + 1;
-    sprintf(buf, "%d", m_baudRateList[nextBaudIndex]);
-    lv_label_set_text(m_nextBaudLabel, buf);
-
+    if (millis() - lastTime >= 1000) {
+        background = !background;
+        lastTime = millis();
+    }
 }
 
-void FunctionBaudState::increaceBaudRate()
+void scroll_x_anim(void * obj, int32_t v)
 {
-    uint8_t nextBaudIndex = (m_currentBaudIndex == (sizeof(m_baudRateList) / sizeof(m_baudRateList[0]) - 1)) ? 0 : m_currentBaudIndex + 1;
-    m_currentBaudIndex = nextBaudIndex;
-    m_baudRate = m_baudRateList[m_currentBaudIndex];
+    lv_obj_scroll_to_x((lv_obj_t*)obj, v, LV_ANIM_OFF);
 }
 
-void FunctionBaudState::decreaceBaudRate()
+void FunctionBaudState::scroll_anim(lv_obj_t* obj, int32_t v)
 {
-    uint8_t prevBaudIndex = (m_currentBaudIndex == 0) ? (sizeof(m_baudRateList) / sizeof(m_baudRateList[0]) - 1) : m_currentBaudIndex - 1;
-    m_currentBaudIndex = prevBaudIndex;
+    lv_anim_t anim;
+    lv_anim_init(&anim);
+    lv_anim_set_var(&anim, obj);
+    lv_anim_set_duration(&anim, 100);
+
+    lv_anim_set_values(&anim, lv_obj_get_scroll_x(obj), v);
+    lv_anim_set_exec_cb(&anim, scroll_x_anim);
+    lv_anim_set_path_cb(&anim, lv_anim_path_linear);
+    lv_anim_start(&anim);
+}
+
+void FunctionBaudState::changeBaudRate()
+{
     m_baudRate = m_baudRateList[m_currentBaudIndex];
+    m_currentLedIndex = m_currentBaudIndex;
+
+    ShowSerial.end();
+    COMSerial.end();
+    ShowSerial.begin(m_baudRate);
+    COMSerial.begin(m_baudRate);
 }
 
 int FunctionBaudState::getID() const
@@ -158,6 +198,4 @@ const char* FunctionBaudState::getName() const
     return "FunctionBaudState";
 }
 
-
-uint FunctionBaudState::m_baudRate = BAUD_9600;
-
+uint FunctionBaudState::m_baudRate = 9600;

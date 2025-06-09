@@ -14,8 +14,11 @@ struct MenuItem {
 struct MAIN_MENU_T {
     lv_obj_t* screen;
     lv_obj_t* uart_bg;
-    lv_obj_t* baud_value;
-    /* lv_obj_t* led[3]; */
+    lv_obj_t* power_bg;
+    lv_obj_t* baudRate;
+    lv_obj_t* ledTitle;
+    lv_obj_t* ledRx;
+    lv_obj_t* ledTx;
     lv_obj_t* vol;
     lv_obj_t* cur;
     lv_obj_t* power;
@@ -60,6 +63,5 @@ public:
     virtual void onExit();
     virtual bool handleEvent(StateMachine* machine, const Event* event);
 };
-
 
 #endif // MENU_STATES_H

@@ -9,7 +9,7 @@
 #include "semphr.h"
 
 #define EVENT_QUEUE_SIZE 10
-#define MAX_EVENT_SIZE sizeof(TouchEvent) // 使用最大的事件类型尺寸
+#define MAX_EVENT_SIZE sizeof(WheelEvent) // 使用最大的事件类型尺寸
 
 typedef void (*ErrorHandler)(int errorCode, const char* errorMsg);
 

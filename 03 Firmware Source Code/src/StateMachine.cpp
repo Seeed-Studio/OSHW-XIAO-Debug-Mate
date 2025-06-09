@@ -61,7 +61,7 @@ bool StateMachine::start(UBaseType_t priority) {
     BaseType_t result = xTaskCreate(
         stateMachineTaskFunc,    // 任务函数
         "StateMachine",          // 任务名称
-        4096,                    // 堆栈大小，根据实际需求调整
+        40960,                   // 堆栈大小，根据实际需求调整
         this,                    // 传递给任务的参数
         priority,                // 任务优先级
         &m_stateMachineTask      // 任务句柄
@@ -103,7 +103,6 @@ void StateMachine::stateMachineTaskFunc(void* params) {
     uint8_t eventBuffer[MAX_EVENT_SIZE];
 
     for (;;) {
-        // Serial.printf("[%s]::%d - main loop\n", __func__, __LINE__);
         // 等待事件队列
         // if (xQueueReceive(machine->m_eventQueue, eventBuffer, portMAX_DELAY) == pdTRUE) {
         if (xQueueReceive(machine->m_eventQueue, eventBuffer, (TickType_t) 100) == pdTRUE) {
@@ -111,10 +110,16 @@ void StateMachine::stateMachineTaskFunc(void* params) {
 
             // 处理事件
             machine->handleEvent(event);
+            continue;
         }
-        machine->getCurrentState()->updateDisplay(machine->m_displayContext);
+
+        if (machine->m_displayContext) {
+            machine->m_currentState->updateDisplay(machine->m_displayContext);
+        }
+
         lv_timer_handler(); /* let the GUI do its work */
-        vTaskDelay(pdMS_TO_TICKS(2000));
+
+        vTaskDelay(pdMS_TO_TICKS(30));
     }
 }
 
@@ -145,6 +150,15 @@ bool StateMachine::handleEvent(const Event* event) {
     xSemaphoreGive(m_stateMutex);
 
     bool handled = false;
+    static EventType lastType = EVENT_NONE;
+    static uint32_t lastTime = 0;
+
+    if (lastType == event->getType() && (millis() - lastTime) < 60) {
+        return false;
+    }
+
+    lastType = event->getType();
+    lastTime = millis();
 
     try {
         handled = state->handleEvent(this, event);
@@ -156,6 +170,7 @@ bool StateMachine::handleEvent(const Event* event) {
                 xSemaphoreGive(m_stateMutex);
 
                 currentState->updateDisplay(m_displayContext);
+                lv_timer_handler();
             }
         }
     } catch(...) {
@@ -266,5 +281,6 @@ void StateMachine::requestDisplayUpdate() {
     State* state = getCurrentState();
     if (state) {
         state->updateDisplay(m_displayContext);
+        lv_timer_handler();
     }
 }

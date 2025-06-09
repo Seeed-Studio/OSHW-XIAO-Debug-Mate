@@ -5,14 +5,16 @@
 #include "MenuStates.h"
 #include "InputTask.h"
 #include "DisplayContext.h"
-#include "FunctionBaudState.h"
-#include "FunctionUartState.h"
-#include "FunctionPowerState.h"
 #include "ErrorState.h"
+#include "FunctionUartState.h"
+#include "FunctionBaudState.h"
+#include "FunctionPowerState.h"
 
 #include "DapLink.h"
 #include "Global.h"
 #include "LvglStyle.h"
+
+#include <Adafruit_INA228.h>
 
 #define DRAW_BUF_SIZE (TFT_HOR_RES * TFT_VER_RES / 10 * (LV_COLOR_DEPTH / 8))
 uint32_t draw_buf[DRAW_BUF_SIZE / 4];
@@ -25,10 +27,8 @@ StateMachine stateMachine;
 
 // 创建输入任务
 InputTask inputTask;
-// 创建并注册主菜单状态
 
-
-unsigned long startTime = 0;
+Adafruit_INA228 ina228;
 
 // 错误处理回调
 void appErrorHandler(int errorCode, const char* errorMsg) {
@@ -38,6 +38,22 @@ void appErrorHandler(int errorCode, const char* errorMsg) {
 
 static uint32_t my_tick(void) {
     return millis();
+}
+
+void initSerial() {
+    ShowSerial.begin(FunctionBaudState::m_baudRate);
+    COMSerial.begin(FunctionBaudState::m_baudRate);
+
+    pinMode(UART_SWITCH, OUTPUT);
+    digitalWrite(UART_SWITCH, LOW);
+}
+
+void initLED() {
+    pinMode(LED_DATA, OUTPUT);
+    pinMode(LED_CLOCK, OUTPUT);
+    pinMode(LED_LATCH, OUTPUT);
+
+    displayContext.updateBaudLED(1, false);
 }
 
 void initLVGL() {
@@ -58,32 +74,54 @@ void initLVGL() {
     lv_timer_handler();
 }
 
+void initINA228() {
+    pinMode(MOS1_PIN, INPUT);
+    pinMode(MOS2_PIN, INPUT);
+
+    ina228 = Adafruit_INA228();
+
+    Wire.setPins(INA_I2C_SDA, INA_I2C_SCL);
+    Wire.setClock(INA_I2C_FREQUENCY);
+
+    if (!ina228.begin(INA_I2C_ADDR)) {
+        ShowSerial.println("Couldn't find INA228 chip");
+        return;
+    }
+
+    // set shunt resistance and max current
+    ina228.setShunt(0.068, 1.0);
+    ina228.setAveragingCount(INA228_COUNT_16);
+
+    // set the time over which to measure the current and bus voltage
+    ina228.setVoltageConversionTime(INA228_TIME_150_us);
+    ina228.setCurrentConversionTime(INA228_TIME_280_us);
+}
+
 void setup() {
-    // 记录程序启动时间
-    startTime = millis();
-
-    Serial.begin(9600);
-
     // 硬件初始化
     // TODO: 初始化MCU外设、显示屏等
+    initSerial();
+    initLED();
     initLVGL();
     initStyle();
     initDapLink();
-    // 初始化按钮，配置中断
+    initINA228();
     pinMode(BOOT_BTN, INPUT_PULLUP);
-    attachInterrupt(digitalPinToInterrupt(BOOT_BTN), InputTask::btnInterruptHandler, CHANGE);
+    pinMode(ENCODER_PINA, INPUT);
+    pinMode(ENCODER_PINB, INPUT);
 
     // 注册状态
     StateManager* stateManager = StateManager::getInstance();
 
+    // 创建并注册主菜单状态
     MainMenuState* mainMenu = new MainMenuState();
     FunctionUartState* uartState = new FunctionUartState();
     FunctionBaudState* baudState = new FunctionBaudState();
     FunctionPowerState* powerState = new FunctionPowerState();
+
     // 添加菜单项
-    mainMenu->addMenuItem("Function 1", FunctionUartState::ID);
-    mainMenu->addMenuItem("Function 2", FunctionBaudState::ID); // 假设Function2State的ID是3
-    mainMenu->addMenuItem("Function 3", FunctionPowerState::ID); // 假设Function3State的ID是4
+    mainMenu->addMenuItem("Function Uart", FunctionUartState::ID);
+    mainMenu->addMenuItem("Function Power", FunctionPowerState::ID);
     stateManager->registerState(mainMenu);
 
     // 注册功能状态
@@ -98,6 +136,8 @@ void setup() {
 
     // 设置错误处理器
     stateMachine.setErrorHandler(appErrorHandler);
+
+    displayContext.setINA228(&ina228);
 
     // 设置显示上下文
     stateMachine.setDisplayContext(&displayContext);
@@ -123,10 +163,9 @@ void setup() {
         while(1);
     }
 
-    Serial.printf("All settings are successful\n");
+    ShowSerial.printf("All settings are successful\n");
 }
 
 void loop()
 {
-
 }

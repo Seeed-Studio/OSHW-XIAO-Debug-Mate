@@ -1,25 +1,19 @@
-//
-// Created by Administrator on 25-4-29.
-//
-
-#ifndef FUNCTIONBAUDSTATE_H
-#define FUNCTIONBAUDSTATE_H
+#ifndef FUNCTION_BAUD_STATE_H
+#define FUNCTION_BAUD_STATE_H
 
 #include "MenuStates.h"
 #include "Global.h"
 #include "LvglStyle.h"
+#include "StateManager.h"
+#include "FunctionPowerState.h"
 
-#define BAUD_4800 4800
-#define BAUD_9600 9600
-#define BAUD_19200 19200
-#define BAUD_38400 38400
-#define BAUD_57600 57600
-#define BAUD_115200 115200
-#define BAUD_230400 230400
-#define BAUD_460800 460800
-#define BAUD_921600 921600
+#define NUM_BAUDRATES 9
 
-
+struct BAUD_STATE_UI_T {
+    lv_obj_t* screen;
+    lv_obj_t* roller;
+    lv_obj_t* labels[NUM_BAUDRATES];
+};
 
 // 特定功能状态
 class FunctionBaudState : public FunctionState {
@@ -30,29 +24,22 @@ public:
 
     // 特定实现
     virtual void updateDisplay(DisplayContext* display);
+    void scroll_anim(lv_obj_t* obj, int32_t v);
+    void changeBaudRate();
     int getID() const override;
     const char* getName() const override;
     void onEnter() override;
     void onExit() override;
     bool handleEvent(StateMachine* machine, const Event* event) override;
 
-    void increaceBaudRate();
-    void decreaceBaudRate();
-
 public:
     static uint m_baudRate;
 private:
-    lv_obj_t* m_currentBaudLabel;
-    lv_obj_t* m_previousBaudLabel;
-    lv_obj_t* m_nextBaudLabel;
-    lv_obj_t *m_line;
-
-
-    uint m_baudRateList[9] = {BAUD_4800, BAUD_9600, BAUD_19200, BAUD_38400, BAUD_57600, BAUD_115200, BAUD_230400, BAUD_460800, BAUD_921600};
+    BAUD_STATE_UI_T m_baudStateUI;
+    uint m_baudRateList[NUM_BAUDRATES] = {4800, 9600, 19200, 38400, 57600, 115200, 230400, 460800, 921600};
     uint8_t m_currentBaudIndex;
+    uint8_t m_currentLedIndex;
+    bool m_exit;
 };
 
-
-
-
-#endif //FUNCTIONBAUDSTATE_H
+#endif // FUNCTION_BAUD_STATE_H

@@ -1,4 +1,5 @@
 #include "DapLink.h"
+#include "Global.h"
 
 #include <stdint.h>
 
@@ -39,11 +40,12 @@ Adafruit_USBD_HID usb_hid;
 
 static uint8_t USB_Request[DAP_PACKET_COUNT][DAP_PACKET_SIZE];  // Request  Buffer
 uint8_t rawhidResponse[DAP_PACKET_SIZE];
+bool daplinkStatus = true;
 
 #define FREE_COUNT_INIT          (DAP_PACKET_COUNT)
 #define SEND_COUNT_INIT          0
 
-void initDapLink() {
+void initDapLink(bool blocked) {
     USBDevice.setProductDescriptor("CMSIS-DAP");
     USBDevice.setID(0x0D28,0x0204);
 
@@ -60,18 +62,27 @@ void initDapLink() {
 
     int ret = usb_hid.begin();
     if (!ret) {
-        Serial.println("usb hid begin failed");
+        ShowSerial.println("usb hid begin failed");
     }
 
     if (USBDevice.mounted()) {
-        Serial.println("DAPLink reattach");
+        ShowSerial.println("DAPLink reattach");
         USBDevice.detach();
         delay(10);
         USBDevice.attach();
     }
 
-    // wait until device mounted
-    while( !USBDevice.mounted() ) delay(1);
+    if (blocked) {
+        // wait until device mounted
+        int cnt = 0;
+        while( !USBDevice.mounted() ) {
+            delay(10);
+            if (++cnt >= 300) {
+                daplinkStatus = false;
+                break;
+            }
+        }
+    }
 
     DAP_Setup();
 
@@ -104,7 +115,6 @@ uint16_t get_report_callback(uint8_t report_id, hid_report_type_t report_type, u
 // received data on OUT endpoint ( Report ID = 0, Type = 0 )
 void set_report_callback(uint8_t report_id, hid_report_type_t report_type, uint8_t const* buffer, uint16_t bufsize)
 {
-    Serial.printf("this is set_report_callback function %d\n", report_type);
     int i;
     // main_led_state_t led_next_state = MAIN_LED_FLASH;
     switch (report_type) {

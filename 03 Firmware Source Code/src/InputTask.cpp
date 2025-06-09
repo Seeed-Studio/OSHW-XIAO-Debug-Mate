@@ -9,7 +9,6 @@
 InputTask::InputTask() 
     : m_wheelTask(0), 
       m_buttonTask(0), 
-      m_touchTask(0),
       m_stateMachine(0)
 {
 }
@@ -26,7 +25,7 @@ bool InputTask::start(UBaseType_t priority) {
     if (!m_stateMachine) {
         return false;
     }
-    
+
     // 创建滚轮任务
     BaseType_t result = xTaskCreate(
         wheelTaskFunc,
@@ -36,11 +35,11 @@ bool InputTask::start(UBaseType_t priority) {
         priority,
         &m_wheelTask
     );
-    
+
     if (result != pdPASS) {
         return false;
     }
-    
+
     // 创建按钮任务
     result = xTaskCreate(
         buttonTaskFunc,
@@ -50,31 +49,13 @@ bool InputTask::start(UBaseType_t priority) {
         priority,
         &m_buttonTask
     );
-    
+
     if (result != pdPASS) {
         vTaskDelete(m_wheelTask);
         m_wheelTask = 0;
         return false;
     }
-    
-    // 创建触摸屏任务
-    result = xTaskCreate(
-        touchTaskFunc,
-        "TouchTask",
-        4096,
-        this,
-        priority,
-        &m_touchTask
-    );
-    
-    if (result != pdPASS) {
-        vTaskDelete(m_wheelTask);
-        vTaskDelete(m_buttonTask);
-        m_wheelTask = 0;
-        m_buttonTask = 0;
-        return false;
-    }
-    
+
     return true;
 }
 
@@ -83,95 +64,89 @@ void InputTask::stop() {
         vTaskDelete(m_wheelTask);
         m_wheelTask = 0;
     }
-    
+
     if (m_buttonTask) {
         vTaskDelete(m_buttonTask);
         m_buttonTask = 0;
-    }
-    
-    if (m_touchTask) {
-        vTaskDelete(m_touchTask);
-        m_touchTask = 0;
     }
 }
 
 void InputTask::wheelTaskFunc(void* params) {
     InputTask* inputTask = static_cast<InputTask*>(params);
     StateMachine* stateMachine = inputTask->m_stateMachine;
-    
+    EventType encoderSta = EVENT_NONE;
+    int encoderA = 0, encoderB = 0;
+    static uint cntA       = 0;
+    static uint cntB       = 0;
+    static uint buffer     = 0;
+    static uint status     = 0;
+    static uint lastStatus = 0;
+
     for (;;) {
-        // 轮询滚轮
-        // TODO: 实现滚轮状态检测
+        encoderA = digitalRead(ENCODER_PINA);
+        encoderB = digitalRead(ENCODER_PINB);
 
-#ifdef INPUT_DEBUG
-        LOGI();
-#endif
-        bool wheelMoved = false;
-        bool isClockwise = true;
+        if (encoderA) {
+            if (cntA)  cntA--;
+            else      status |= 0x01;
+        } else {
+            if (cntA < 4)  cntA++;
+            else        status &= ~0x01;
+        }
 
-        if (wheelMoved) {
-            // 创建滚轮事件
-            WheelEvent event(isClockwise);
+        if (encoderB) {
+            if (cntB)  cntB--;
+            else      status |= 0x02;
+        } else {
+            if (cntB < 4)  cntB++;
+            else        status &= ~0x02;
+        }
 
-            // 发送事件到状态机
+        if (lastStatus != status) {
+            lastStatus = status;
+            buffer <<= 2;
+            buffer |= status;
+            if (status == 0x03) {
+                if (buffer == 0x87)       encoderSta = EVENT_WHEEL_COUNTERCLOCKWISE;
+                else if (buffer == 0x4B)  encoderSta = EVENT_WHEEL_CLOCKWISE;
+                buffer = 0;
+            }
+        }
+
+        if (encoderSta == EVENT_WHEEL_COUNTERCLOCKWISE) {
+            encoderSta = EVENT_NONE;
+
+            WheelEvent event(false);
+            stateMachine->postEvent(&event);
+        } else if (encoderSta == EVENT_WHEEL_CLOCKWISE) {
+            encoderSta = EVENT_NONE;
+
+            WheelEvent event(true);
             stateMachine->postEvent(&event);
         }
 
-        // 滚轮检测延迟
-        vTaskDelay(pdMS_TO_TICKS(100));
+        vTaskDelay(pdMS_TO_TICKS(1));
     }
 }
 
-void InputTask::buttonTaskFunc(void* params)
-{
+void InputTask::buttonTaskFunc(void* params) {
     InputTask* inputTask = static_cast<InputTask*>(params);
     StateMachine* stateMachine = inputTask->m_stateMachine;
-    // 轮询按钮
-    for (;;)
-    {
-        if(m_buttonAction == ButtonAction::ButtonShortPress)
-        {
-            LOGI("BtnPress");
+
+    attachInterrupt(digitalPinToInterrupt(BOOT_BTN), InputTask::btnInterruptHandler, CHANGE);
+
+    for (;;) {
+        if (m_buttonAction == ButtonAction::ButtonShortPress) {
             m_buttonAction = ButtonAction::NoneAction;
             ButtonEvent event(EVENT_BUTTON_PRESS, BOOT_BTN);
             stateMachine->postEvent(&event);
-        }
-        else if(m_buttonAction == ButtonAction::ButtonLongPress)
-        {
-            LOGI("BtnLongPress");
+        } else if (m_buttonAction == ButtonAction::ButtonLongPress) {
             m_buttonAction = ButtonAction::NoneAction;
             ButtonEvent event(EVENT_BUTTON_LONGPRESS, BOOT_BTN);
             stateMachine->postEvent(&event);
         }
+
         // 按钮检测延迟
-        vTaskDelay(pdMS_TO_TICKS(100));
-    }
-}
-
-void InputTask::touchTaskFunc(void* params) {
-    InputTask* inputTask = static_cast<InputTask*>(params);
-    StateMachine* stateMachine = inputTask->m_stateMachine;
-
-    for (;;) {
-        // 轮询触摸屏
-        // TODO: 实现触摸屏状态检测
-
-#ifdef INPUT_DEBUG
-        LOGI();
-#endif
-        bool touchActive = false;
-        int touchX = 0;
-        int touchY = 0;
-
-        if (touchActive) {
-            // 创建触摸事件
-            TouchEvent event(EVENT_TOUCH_PRESS, touchX, touchY);
-
-            // 发送事件到状态机
-            stateMachine->postEvent(&event);
-        }
-
-        // 触摸屏检测延迟
         vTaskDelay(pdMS_TO_TICKS(100));
     }
 }
@@ -194,6 +169,7 @@ void InputTask::btnInterruptHandler()
         } else {
             unsigned long pressDuration = millis() - pressStartTime;
             if (pressDuration < 500) {
+
                 m_buttonAction = ButtonAction::ButtonShortPress;
             } else if (pressDuration >= LONG_PRESS_DELAY) {
                 m_buttonAction = ButtonAction::ButtonLongPress;
@@ -203,7 +179,6 @@ void InputTask::btnInterruptHandler()
         }
     }
 }
-
 
 ButtonAction InputTask::m_buttonAction = ButtonAction::NoneAction;
 

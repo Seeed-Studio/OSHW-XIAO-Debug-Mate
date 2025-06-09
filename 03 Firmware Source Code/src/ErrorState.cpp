@@ -1,7 +1,3 @@
-//
-// Created by Administrator on 25-4-29.
-//
-
 #include "ErrorState.h"
 
 // ErrorState实现
@@ -43,22 +39,6 @@ void ErrorState::updateDisplay(DisplayContext* display) {
     }
 
     display->lock();
-
-    // 清屏
-    display->clear();
-
-    // 绘制错误信息
-    display->drawText(10, 10, "ERROR", true);
-
-    char errorText[32];
-    sprintf(errorText, "Code: %d", m_errorCode);
-    display->drawText(10, 40, errorText);
-
-    display->drawText(10, 60, m_errorMessage);
-    display->drawText(10, 100, "Press any button to return");
-
-    // 刷新显示
-    display->refresh();
 
     display->unlock();
 }
