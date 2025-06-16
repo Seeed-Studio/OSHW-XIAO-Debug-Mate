@@ -13,6 +13,7 @@
 #include "DapLink.h"
 #include "Global.h"
 #include "LvglStyle.h"
+#include "frame.h"
 
 #include <Adafruit_INA228.h>
 
@@ -56,6 +57,33 @@ void initLED() {
     displayContext.updateBaudLED(1, false);
 }
 
+void animBootCompleted(lv_anim_t* anim) {
+    stateMachine.setBootCompleted();
+}
+
+void initAnimBoot(lv_obj_t* scr) {
+    lv_obj_t* animimg = lv_animimg_create(scr);
+    lv_obj_center(animimg);
+    lv_animimg_set_src(animimg, (const void **) anim_boot_imgs, BOOT_FRAME_SIZE, false);
+    lv_animimg_set_duration(animimg, 4850);
+    lv_animimg_set_repeat_count(animimg, 1);
+    lv_animimg_set_completed_cb(animimg, animBootCompleted);
+    lv_animimg_start(animimg);
+}
+
+static void bootTaskFunc(void* params) {
+    initAnimBoot(lv_scr_act());
+
+    while (true) {
+        if (stateMachine.getBootCompleted()) {
+            vTaskDelete(NULL);
+        }
+
+        lv_timer_handler();
+        vTaskDelay(30);
+    }
+}
+
 void initLVGL() {
     lv_init();
 
@@ -71,7 +99,14 @@ void initLVGL() {
 
     lv_obj_add_style(lv_scr_act(), &style_screen, 0);
 
-    lv_timer_handler();
+    xTaskCreate(
+        bootTaskFunc,
+        "boot Task Func",
+        8192,
+        nullptr,
+        1,
+        nullptr
+    );
 }
 
 void initINA228() {
@@ -99,7 +134,6 @@ void initINA228() {
 
 void setup() {
     // 硬件初始化
-    // TODO: 初始化MCU外设、显示屏等
     initSerial();
     initLED();
     initLVGL();
@@ -145,7 +179,10 @@ void setup() {
     // 初始化状态机，以主菜单为初始状态，错误状态为异常处理状态
     if (!stateMachine.init(mainMenu, errorState)) {
         // 初始化失败处理
-        while(1); // 或者重启系统
+        while(1) {
+            ShowSerial.printf("StateMachine init failed here\n");
+            delay(100);
+        }
     }
 
     inputTask.setStateMachine(&stateMachine);
@@ -153,14 +190,20 @@ void setup() {
     // 启动状态机任务
     if (!stateMachine.start(1)) {
         // 启动失败处理
-        while(1);
+        while(1) {
+            ShowSerial.printf("StateMachine start failed here\n");
+            delay(100);
+        }
     }
 
     // 启动输入任务
     if (!inputTask.start(2)) {
         // 启动失败处理
         stateMachine.stop();
-        while(1);
+        while(1) {
+            ShowSerial.printf("InputTask start failed here\n");
+            delay(100);
+        }
     }
 
     ShowSerial.printf("All settings are successful\n");

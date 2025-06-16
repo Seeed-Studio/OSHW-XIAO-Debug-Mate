@@ -11,7 +11,8 @@ StateMachine::StateMachine()
       m_stateMutex(nullptr), // NOTE: need check
       m_displayContext(nullptr),
       m_eventQueue(nullptr), // NOTE: need check
-      m_stateMachineTask(nullptr)
+      m_stateMachineTask(nullptr),
+      m_isBootCompleted(false)
 {
 }
 
@@ -61,7 +62,7 @@ bool StateMachine::start(UBaseType_t priority) {
     BaseType_t result = xTaskCreate(
         stateMachineTaskFunc,    // 任务函数
         "StateMachine",          // 任务名称
-        40960,                   // 堆栈大小，根据实际需求调整
+        8192,                    // 堆栈大小，根据实际需求调整
         this,                    // 传递给任务的参数
         priority,                // 任务优先级
         &m_stateMachineTask      // 任务句柄
@@ -83,6 +84,10 @@ void StateMachine::stop() {
 
 void StateMachine::stateMachineTaskFunc(void* params) {
     StateMachine* machine = static_cast<StateMachine*>(params);
+
+    while (!machine->m_isBootCompleted) {
+        vTaskDelay(30);
+    }
 
     // 先调用当前状态的onEnter
     if (xSemaphoreTake(machine->m_stateMutex, (TickType_t) 10) == pdTRUE) {
@@ -283,4 +288,12 @@ void StateMachine::requestDisplayUpdate() {
         state->updateDisplay(m_displayContext);
         lv_timer_handler();
     }
+}
+
+void StateMachine::setBootCompleted() {
+    m_isBootCompleted = true;
+}
+
+bool StateMachine::getBootCompleted() {
+    return m_isBootCompleted;
 }

@@ -27,6 +27,8 @@ private:
     QueueHandle_t m_eventQueue;
     TaskHandle_t m_stateMachineTask;
 
+    bool m_isBootCompleted;
+
     // 内部方法
     static void stateMachineTaskFunc(void* params);
 
@@ -69,6 +71,10 @@ public:
 
     // 请求更新显示
     void requestDisplayUpdate(); // NOTE: no use now
+
+    void setBootCompleted();
+
+    bool getBootCompleted();
 };
 
 #endif // STATE_MACHINE_H

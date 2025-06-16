@@ -23,7 +23,7 @@
 /*Set to your screen resolution and rotation*/
 #define TFT_HOR_RES   240
 #define TFT_VER_RES   320
-#define TFT_ROTATION  LV_DISPLAY_ROTATION_270
+#define TFT_ROTATION  LV_DISPLAY_ROTATION_90
 
 #define DEBOUNCE_DELAT 50       // Debounce delay, in milliseconds
 #define LONG_PRESS_DELAY 1000   // Long press delay, in milliseconds
