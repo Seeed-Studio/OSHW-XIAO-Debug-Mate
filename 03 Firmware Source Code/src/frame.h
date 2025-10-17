@@ -10,7 +10,7 @@ LV_IMAGE_DECLARE(frame_03);
 LV_IMAGE_DECLARE(frame_04);
 LV_IMAGE_DECLARE(frame_05);
 LV_IMAGE_DECLARE(frame_06);
-LV_IMAGE_DECLARE(frame_06);
+LV_IMAGE_DECLARE(frame_07);
 LV_IMAGE_DECLARE(frame_08);
 LV_IMAGE_DECLARE(frame_09);
 LV_IMAGE_DECLARE(frame_10);
@@ -46,7 +46,7 @@ static const lv_image_dsc_t * anim_boot_imgs[BOOT_FRAME_SIZE] = {
     &frame_04,
     &frame_05,
     &frame_06,
-    &frame_06,
+    &frame_07,
     &frame_08,
     &frame_09,
     &frame_10,

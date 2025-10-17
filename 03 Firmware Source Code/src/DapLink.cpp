@@ -1,4 +1,6 @@
 #include "DapLink.h"
+#include "USB.h"
+
 #include "Global.h"
 
 #include <stdint.h>
@@ -45,7 +47,24 @@ bool daplinkStatus = true;
 #define FREE_COUNT_INIT          (DAP_PACKET_COUNT)
 #define SEND_COUNT_INIT          0
 
+int getUSBDeviceState() {
+    if (!USBDevice.isInitialized()) {
+        return -1;
+    }
+
+    if (USBDevice.mounted() && usb_hid.ready()) {
+        return 1;
+    }
+
+    return 0;
+}
+
 void initDapLink(bool blocked) {
+    delay(200);
+
+    ESPUSB USB;
+    USB.begin();
+
     USBDevice.setProductDescriptor("CMSIS-DAP");
     USBDevice.setID(0x0D28,0x0204);
 

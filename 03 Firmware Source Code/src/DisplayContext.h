@@ -31,6 +31,9 @@ public:
 
     void setINA228(Adafruit_INA228* ina228) {
         m_ina228 = ina228;
+        m_ina228->setAveragingCount(INA228_COUNT_16);
+        m_ina228->setVoltageConversionTime(INA228_TIME_4120_us);
+        m_ina228->setCurrentConversionTime(INA228_TIME_4120_us);
     }
 
     void updateShuntOfINA() {
@@ -39,11 +42,11 @@ public:
         mos1 = digitalRead(MOS1_PIN);
         mos2 = digitalRead(MOS2_PIN);
         if (mos1 == 0 && mos2 == 0) {
-            m_ina228->setShunt(10, 0.0062);
+            m_ina228->setShunt(9.936290, 0.0062);
         } else if(mos1 == 1 && mos2 == 0) {
-            m_ina228->setShunt(1.023, 0.1394);
+            m_ina228->setShunt(1.023875, 0.1394);
         } else if(mos1 == 1 && mos2 == 1) {
-            m_ina228->setShunt(0.110, 1.0);
+            m_ina228->setShunt(0.105482, 1.0);
         }
     }
 
