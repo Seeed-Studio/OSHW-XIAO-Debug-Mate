@@ -10,6 +10,8 @@
 #define POWER_INTERFACE_MEDIUM   1
 #define POWER_INTERFACE_COMPLEX  2
 
+#define POWER_REFRESH_TIME       168
+
 struct POWER_STATE_SIMPLE_T {
     lv_obj_t* voltage;
     lv_obj_t* current;
@@ -69,6 +71,8 @@ public:
 private:
     POWER_STATE_UI_T m_powerStateUI;
     unsigned long m_startTime;
+    unsigned long m_lastTime;
+    unsigned long wheelLastInterruptTime;
     int m_currentIndex;
     int m_update;
 

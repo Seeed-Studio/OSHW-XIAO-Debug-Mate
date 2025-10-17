@@ -20,6 +20,11 @@
 #define INA_I2C_ADDR 0x43
 #define INA_I2C_FREQUENCY 100000
 
+#define EEPROM_I2C_SDA 1
+#define EEPROM_I2C_SCL 2
+#define EEPROM_I2C_ADDR 0x50
+#define EEPROM_I2C_FREQUENCY 100000
+
 /*Set to your screen resolution and rotation*/
 #define TFT_HOR_RES   240
 #define TFT_VER_RES   320

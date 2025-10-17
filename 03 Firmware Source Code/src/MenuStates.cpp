@@ -1,8 +1,10 @@
 #include "Global.h"
+#include "Tool.h"
 #include "MenuStates.h"
 #include "StateManager.h"
 #include "LvglStyle.h"
 #include "FunctionBaudState.h"
+#include "DapLink.h"
 
 // MainMenuState实现
 MainMenuState::MainMenuState() 
@@ -238,8 +240,8 @@ void MainMenuState::updateDisplay(DisplayContext* display) {
     }
 
     Adafruit_INA228* ina228 = nullptr;
-    char value[10];
-    float vol = 0, cur = 0, power = 0;
+    char value[7] = "";
+    double vol = 0, cur = 0, power = 0;
 
     if (m_currentSelection == -1) {
         lv_obj_add_style(m_mainMenu.uart_bg, &style_nofocus_bg, 0);
@@ -250,6 +252,13 @@ void MainMenuState::updateDisplay(DisplayContext* display) {
     } else if (m_currentSelection == 1) {
         lv_obj_add_style(m_mainMenu.uart_bg, &style_nofocus_bg, 0);
         lv_obj_add_style(m_mainMenu.power_bg, &style_focus_bg, 0);
+    }
+
+    // Title LED
+    if (getUSBDeviceState() == 1) {
+        lv_led_set_color(m_mainMenu.ledTitle, lv_color_hex(0xACE62F));
+    } else {
+        lv_led_set_color(m_mainMenu.ledTitle, lv_color_hex(0xFF0000));
     }
 
     // RX
@@ -267,8 +276,12 @@ void MainMenuState::updateDisplay(DisplayContext* display) {
     }
 
     ina228 = display->getINA228();
+    // V
     vol = (ina228->readBusVoltage() / 1000 - ina228->readShuntVoltage()) / 1000;
-    cur = _max(0.0, ina228->readCurrent() / 1000);
+    // A
+    cur = _max(0.0, ina228->readCurrent() / 1000 + getCompensation(ina228));
+    cur = (cur <= 0.000001) ? 0 : cur;
+    // W
     power = vol * cur;
 
     lv_label_set_text_fmt(m_mainMenu.baudRate, "%d", FunctionBaudState::m_baudRate);

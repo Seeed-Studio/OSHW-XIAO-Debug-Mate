@@ -12,6 +12,7 @@
 
 #include "DapLink.h"
 #include "Global.h"
+#include "Tool.h"
 #include "LvglStyle.h"
 
 #include <Adafruit_INA228.h>
@@ -41,7 +42,6 @@ static uint32_t my_tick(void) {
 }
 
 void initSerial() {
-    ShowSerial.begin(FunctionBaudState::m_baudRate);
     COMSerial.begin(FunctionBaudState::m_baudRate);
 
     pinMode(UART_SWITCH, OUTPUT);
@@ -105,7 +105,9 @@ void setup() {
     initLVGL();
     initStyle();
     initDapLink();
+    ShowSerial.begin(FunctionBaudState::m_baudRate);
     initINA228();
+    initValueFromEEPROM();
     pinMode(BOOT_BTN, INPUT_PULLUP);
     pinMode(ENCODER_PINA, INPUT);
     pinMode(ENCODER_PINB, INPUT);
