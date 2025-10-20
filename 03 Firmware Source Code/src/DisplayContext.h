@@ -42,7 +42,7 @@ public:
         mos1 = digitalRead(MOS1_PIN);
         mos2 = digitalRead(MOS2_PIN);
         if (mos1 == 0 && mos2 == 0) {
-            m_ina228->setShunt(9.936290, 0.0062);
+            m_ina228->setShunt(9.936290, 0.0070);
         } else if(mos1 == 1 && mos2 == 0) {
             m_ina228->setShunt(1.023875, 0.1394);
         } else if(mos1 == 1 && mos2 == 1) {
