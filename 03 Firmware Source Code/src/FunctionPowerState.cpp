@@ -491,6 +491,10 @@ void FunctionPowerState::updateDisplay(DisplayContext* display)
 
             snprintf(value, sizeof(value), "%.4f", cur);
             lv_label_set_text(m_powerStateUI.powerSimple.current, value);
+            lv_obj_set_style_text_color(
+                m_powerStateUI.powerSimple.current,
+                lv_color_hex(cur > 1.0f ? 0xFF0000 : 0x2FE6AC),
+                LV_PART_MAIN);
 
             snprintf(value, sizeof(value), "%.4f", power);
             lv_label_set_text(m_powerStateUI.powerSimple.power, value);
@@ -503,6 +507,10 @@ void FunctionPowerState::updateDisplay(DisplayContext* display)
 
             snprintf(value, sizeof(value), "%.4f", cur);
             lv_label_set_text(m_powerStateUI.powerMedium.current_A, value);
+            lv_obj_set_style_text_color(
+                m_powerStateUI.powerMedium.current_A,
+                lv_color_hex(cur > 1.0f ? 0xFF0000 : 0x2FE6AC),
+                LV_PART_MAIN);
             snprintf(value, sizeof(value), "%06.3f", cur * 1000);
             lv_label_set_text(m_powerStateUI.powerMedium.current_mA, value);
             snprintf(value, sizeof(value), "%f", cur * 1000 * 1000);
@@ -521,16 +529,28 @@ void FunctionPowerState::updateDisplay(DisplayContext* display)
             lv_label_set_text(m_powerStateUI.powerComplex.voltage, value);
             snprintf(value, sizeof(value), "%.2f", cur);
             lv_label_set_text(m_powerStateUI.powerComplex.current, value);
+            lv_obj_set_style_text_color(
+                m_powerStateUI.powerComplex.current,
+                lv_color_hex(cur > 1.0f ? 0xFF0000 : 0x2FE6AC),
+                LV_PART_MAIN);
             snprintf(value, sizeof(value), "%.2f", power);
             lv_label_set_text(m_powerStateUI.powerComplex.power, value);
 
             snprintf(value, sizeof(value), "%.4f", m_minCurrent);
             lv_label_set_text(m_powerStateUI.powerComplex.minCurrent_A, value);
+            lv_obj_set_style_text_color(
+                m_powerStateUI.powerComplex.minCurrent_A,
+                lv_color_hex(m_minCurrent > 1.0f ? 0xFF0000 : 0x2FE6AC),
+                LV_PART_MAIN);
             snprintf(value, sizeof(value), "%.4f", m_minPower);
             lv_label_set_text(m_powerStateUI.powerComplex.minPower_W, value);
 
             snprintf(value, sizeof(value), "%.4f", m_maxCurrent);
             lv_label_set_text(m_powerStateUI.powerComplex.maxCurrent_A, value);
+            lv_obj_set_style_text_color(
+                m_powerStateUI.powerComplex.maxCurrent_A,
+                lv_color_hex(m_maxCurrent > 1.0f ? 0xFF0000 : 0x2FE6AC),
+                LV_PART_MAIN);
             snprintf(value, sizeof(value), "%.4f", m_maxPower);
             lv_label_set_text(m_powerStateUI.powerComplex.maxPower_W, value);
 
