@@ -46,7 +46,7 @@ public:
         } else if(mos1 == 1 && mos2 == 0) {
             m_ina228->setShunt(1.023875, 0.1394);
         } else if(mos1 == 1 && mos2 == 1) {
-            m_ina228->setShunt(0.105482, 1.0);
+            m_ina228->setShunt(0.1075482, 1.5);
         }
     }
 
