@@ -292,6 +292,13 @@ void MainMenuState::updateDisplay(DisplayContext* display) {
     snprintf(value, sizeof(value), "%.4f", cur);
     lv_label_set_text(m_mainMenu.cur, value);
 
+    // 超过 1A 标签改成红色
+    lv_obj_set_style_text_color(
+        m_mainMenu.cur, 
+        lv_color_hex(cur > 1.0f ? 0xFF0000 : 0xFFFFFF), 
+        LV_PART_MAIN
+    );
+
     snprintf(value, sizeof(value), "%.4f", power);
     lv_label_set_text(m_mainMenu.power, value);
 }
