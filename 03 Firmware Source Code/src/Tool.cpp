@@ -6,6 +6,11 @@
 #include <I2C_eeprom.h>
 
 typedef struct {
+    double baseI;
+    int segmentIndex;
+} CompensationResult;
+
+typedef struct {
     double umin, umax;
     double cmin_mA, cmax_mA;
 } CLAMP_SEG_T;
@@ -72,38 +77,26 @@ void initValueFromEEPROM() {
 
 // U: V
 // return: mA
-double calCompensationByShuntVol(double U) {
+CompensationResult calCompensationByShuntVol(double U) {
     double I = 0.0;
-    int mos1 = 0, mos2 = 0;
-    int offset = 0;
+    int seg_idx = -1;
     
-    mos1 = digitalRead(MOS1_PIN);
-    mos2 = digitalRead(MOS2_PIN);
+    if      (U > 0           && U <= 1e-06)        { I = 0.0; seg_idx = -1; }
+    else if (U > 1e-06       && U <= 9.86e-05)     { I = -4.96717885515552e-05 + U * (-1.15024973780837    ) + U * U * ( 7.50380233713587e+03); seg_idx = 0; }
+    else if (U > 9.86e-05    && U <= 0.002075875)  { I = -1.17572123826341e-04 + U * (-3.76425950965523e-01) + U * U * (-2.64636863429469e+01); seg_idx = 1; }
+    else if (U > 0.002075875 && U <= 0.00213061)   { I =  4.00173135933271e-01 + U * (-1.93091389761448e+02) + U * U * (-8.12502147858271e-01); seg_idx = 2; }
+    else if (U > 0.00213061  && U <= 0.005489525)  { I =  2.80464450771294e+01 + U * (-1.06774687954604e+04) + U * U * ( 1.01433693037010e+06); seg_idx = 3; }
+    else if (U > 0.005489525 && U <= 0.00795575)   { I =  4.15192674006609e-01 + U * (-1.37494120471743e+02) + U * U * ( 1.11074715236611e+04); seg_idx = 4; }
+    else if (U > 0.00795575  && U <= 0.010019594)  { I =  4.73398883967983e+01 + U * (-9.45635027923620e+03) + U * U * ( 4.71917518500573e+05); seg_idx = 5; }
+    else if (U > 0.010019594 && U <= 0.021018875)  { I = -4.94687661493529e+00 + U * ( 7.42737702877842e+02) + U * U * (-2.48740191915014e+04); seg_idx = 6; }
+    else if (U > 0.021018875 && U <= 0.02638275)   { I = -7.42724335142089e+02 + U * ( 6.33783048995403e+04) + U * U * (-1.33432949251484e+06); seg_idx = 7; }
+    else if (U > 0.02638275  && U <= 0.047608391)  { I =  5.94080582648901e+01 + U * (-2.80934246583276e+03) + U * U * ( 3.34248352232072e+04); seg_idx = 8; }
+    else if (U > 0.047608391 && U <= 0.076459006)  { I = -2.69169784448099e+01 + U * ( 8.67709858761791e+02) + U * U * (-6.70079569468977e+03); seg_idx = 9; }
+    else if (U > 0.076459006 && U <= 0.101737855)  { I =  9.49616304079839e+01 + U * (-2.16873837281881e+03) + U * U * ( 1.22241630543939e+04); seg_idx = 10; }
+    else if (U > 0.101737855 && U <= 0.104738533)  { I =  2.25813965130917e+03 + U * (-4.64186589084307e+04) + U * U * ( 2.37333030351984e+05); seg_idx = 11; }
+    else if (U > 0.104738533 && U <= 0.1075482)    { I =  2.25813965130917e+03 + U * (-4.64186589084307e+04) + U * U * ( 2.37333030351984e+05); seg_idx = 12; }
 
-    if (mos1 == 0 && mos2 == 0) {
-        offset = 0;
-    } else if (mos1 == 1 && mos2 == 0) {
-        offset = 12;
-    } else if (mos1 == 1 && mos2 == 1) {
-        offset = 24;
-    } 
-    
-    if      (U > 0           && U <= 1e-06)        I = 0.0;
-    else if (U > 1e-06       && U <= 9.86e-05)     I = -4.96717885515552e-05 + U * (-1.15024973780837    ) + U * U * ( 7.50380233713587e+03) + g_value.value[0];
-    else if (U > 9.86e-05    && U <= 0.002075875)  I = -1.17572123826341e-04 + U * (-3.76425950965523e-01) + U * U * (-2.64636863429469e+01) + g_value.value[1 + offset];
-    else if (U > 0.002075875 && U <= 0.00213061)   I =  4.00173135933271e-01 + U * (-1.93091389761448e+02) + U * U * (-8.12502147858271e-01) + g_value.value[2 + offset];
-    else if (U > 0.00213061  && U <= 0.005489525)  I =  2.80464450771294e+01 + U * (-1.06774687954604e+04) + U * U * ( 1.01433693037010e+06) + g_value.value[3 + offset];
-    else if (U > 0.005489525 && U <= 0.00795575)   I =  4.15192674006609e-01 + U * (-1.37494120471743e+02) + U * U * ( 1.11074715236611e+04) + g_value.value[4 + offset];
-    else if (U > 0.00795575  && U <= 0.010019594)  I =  4.73398883967983e+01 + U * (-9.45635027923620e+03) + U * U * ( 4.71917518500573e+05) + g_value.value[5 + offset];
-    else if (U > 0.010019594 && U <= 0.021018875)  I = -4.94687661493529e+00 + U * ( 7.42737702877842e+02) + U * U * (-2.48740191915014e+04) + g_value.value[6 + offset];
-    else if (U > 0.021018875 && U <= 0.02638275)   I = -7.42724335142089e+02 + U * ( 6.33783048995403e+04) + U * U * (-1.33432949251484e+06) + g_value.value[7 + offset];
-    else if (U > 0.02638275  && U <= 0.047608391)  I =  5.94080582648901e+01 + U * (-2.80934246583276e+03) + U * U * ( 3.34248352232072e+04) + g_value.value[8 + offset];
-    else if (U > 0.047608391 && U <= 0.076459006)  I = -2.69169784448099e+01 + U * ( 8.67709858761791e+02) + U * U * (-6.70079569468977e+03) + g_value.value[9 + offset];
-    else if (U > 0.076459006 && U <= 0.101737855)  I =  9.49616304079839e+01 + U * (-2.16873837281881e+03) + U * U * ( 1.22241630543939e+04) + g_value.value[10 + offset];
-    else if (U > 0.101737855 && U <= 0.104738533)  I =  2.25813965130917e+03 + U * (-4.64186589084307e+04) + U * U * ( 2.37333030351984e+05) + g_value.value[11 + offset];
-    else if (U > 0.104738533 && U <= 0.1075482)    I =  2.25813965130917e+03 + U * (-4.64186589084307e+04) + U * U * ( 2.37333030351984e+05) + g_value.value[12 + offset];
-
-    return I;
+    return {I, seg_idx};
 }
 
 // return: V
@@ -126,18 +119,29 @@ double getShuntVoltage(Adafruit_INA228 *ina228) {
 
 // return: A
 double getCompensation(Adafruit_INA228 *ina228) {
-    int mos1 = 0, mos2 = 0;
+  int mos1 = 0, mos2 = 0;
     double p0 = 0.945438167, p1 = -45.633764711;
     double dl = -0.001059181, gl = 1.011767876, dh = 0.019902946, gh = -0.000451617;
     double g01 = 1.006524039;
     double shuntVol_V = 0, compensation = 0;
     double cmax_mA = 0, cmin_mA = 0;
+    int offset = 0;
 
     mos1 = digitalRead(MOS1_PIN);
     mos2 = digitalRead(MOS2_PIN);
 
+    if (mos1 == 0 && mos2 == 0) {
+        offset = 0;
+    } else if (mos1 == 1 && mos2 == 0) {
+        offset = 12;
+    } else if (mos1 == 1 && mos2 == 1) {
+        offset = 24;
+    }
+
     shuntVol_V = getShuntVoltage(ina228);
-    compensation = calCompensationByShuntVol(shuntVol_V) / 1000;
+    CompensationResult result = calCompensationByShuntVol(shuntVol_V);
+    compensation = result.baseI;  // mA, without g_value
+    int seg_idx = result.segmentIndex;
 
     if (mos1 == 0 && mos2 == 0) {
         compensation = (p0 + p1 * shuntVol_V) * compensation;
@@ -186,8 +190,14 @@ double getCompensation(Adafruit_INA228 *ina228) {
         }
     }
 
+    // Clamp the base compensation
     compensation = (compensation < cmin_mA) ? cmin_mA : compensation;
     compensation = (compensation > cmax_mA) ? cmax_mA : compensation;
+
+    // Add g_value after clamping, if applicable
+    if (seg_idx >= 0) {
+        compensation += g_value.value[offset + seg_idx];
+    }
 
     return compensation / 1000;
 }
