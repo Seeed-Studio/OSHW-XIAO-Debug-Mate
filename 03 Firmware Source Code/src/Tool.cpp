@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include <Wire.h>
+#include <I2C_eeprom.h>
 
 typedef struct {
     double umin, umax;
@@ -59,20 +60,14 @@ void initValueFromEEPROM() {
     Wire1.setClock(EEPROM_I2C_FREQUENCY);
     Wire1.begin();
 
-    // 读取 EEPROM
-    byte *ptr = (byte *) &g_value;
-    int structSize = sizeof(EEPROM_VALUE_T);
+    I2C_eeprom ee(EEPROM_I2C_ADDR, 1024, &Wire1);
 
-    for (int i = 0; i < structSize; i++) {
-        Wire1.beginTransmission(EEPROM_I2C_ADDR);
-        Wire1.write(i);
-        Wire1.endTransmission();
-
-        Wire1.requestFrom(EEPROM_I2C_ADDR, 1);
-        if (Wire1.available()) {
-            *(ptr + i) = Wire1.read();
-        }
+    if (!ee.begin()) {
+        Serial.println("Failed to initialize EEPROM!");
+        return;
     }
+
+    ee.readBlock(0, (uint8_t*)&g_value, sizeof(EEPROM_VALUE_T));
 }
 
 // U: V
