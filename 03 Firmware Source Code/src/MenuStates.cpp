@@ -62,6 +62,12 @@ void MainMenuState::onEnter() {
     lv_obj_set_style_text_color(label, lv_color_hex(0xACE62F), LV_PART_MAIN);
     lv_obj_add_style(label, &style_font_28, 0);
 
+    label = lv_label_create(m_mainMenu.screen);
+    lv_label_set_text( label, "v1.0" );
+    lv_obj_align_to(label, m_mainMenu.screen, LV_ALIGN_TOP_RIGHT, -40, 38);
+    lv_obj_set_style_text_color(label, lv_color_hex(0x808080), LV_PART_MAIN);
+    lv_obj_add_style(label, &style_font_14, 0);
+
     m_mainMenu.ledTitle = lv_led_create(m_mainMenu.screen);
     lv_obj_set_pos(m_mainMenu.ledTitle, 55 + 12 + 50 + 110 + 3, 28);
     lv_led_on(m_mainMenu.ledTitle);
