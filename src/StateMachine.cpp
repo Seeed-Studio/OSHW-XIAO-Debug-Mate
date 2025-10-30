@@ -1,5 +1,5 @@
 #include "StateMachine.h"
-#include <string.h> // 用于memcpy
+#include <string.h> // For memcpy
 
 #include <Arduino.h>
 
@@ -33,13 +33,13 @@ bool StateMachine::init(State* initialState, State* errorState) {
         return false;
     }
 
-    // 创建互斥锁保护状态访问
+    // Create mutex to protect state access
     m_stateMutex = xSemaphoreCreateMutex();
     if (!m_stateMutex) {
         return false;
     }
 
-    // 创建事件队列
+    // Create event queue
     m_eventQueue = xQueueCreate(EVENT_QUEUE_SIZE, MAX_EVENT_SIZE); // NOTE: need check max size
     if (!m_eventQueue) {
         vSemaphoreDelete(m_stateMutex);
@@ -58,14 +58,14 @@ bool StateMachine::start(UBaseType_t priority) {
         return false;
     }
 
-    // 创建状态机任务
+    // Create state machine task
     BaseType_t result = xTaskCreate(
-        stateMachineTaskFunc,    // 任务函数
-        "StateMachine",          // 任务名称
-        8192,                    // 堆栈大小，根据实际需求调整
-        this,                    // 传递给任务的参数
-        priority,                // 任务优先级
-        &m_stateMachineTask      // 任务句柄
+    stateMachineTaskFunc,    // Task function
+    "StateMachine",          // Task name
+    8192,                    // Stack size (adjust as needed)
+    this,                    // Parameter passed to the task
+    priority,                // Task priority
+    &m_stateMachineTask      // Task handle
     );
 
     if (result != pdPASS) {
@@ -89,14 +89,14 @@ void StateMachine::stateMachineTaskFunc(void* params) {
         vTaskDelay(30);
     }
 
-    // 先调用当前状态的onEnter
+    // Call onEnter of the initial state first
     if (xSemaphoreTake(machine->m_stateMutex, (TickType_t) 10) == pdTRUE) {
         State* initialState = machine->m_currentState;
         xSemaphoreGive(machine->m_stateMutex);
 
         try {
             initialState->onEnter();
-            // 初始更新显示
+            // Initial display update
             if (machine->m_displayContext) {
                 initialState->updateDisplay(machine->m_displayContext);
             }
@@ -108,12 +108,12 @@ void StateMachine::stateMachineTaskFunc(void* params) {
     uint8_t eventBuffer[MAX_EVENT_SIZE];
 
     for (;;) {
-        // 等待事件队列
+    // Wait for an event from the queue
         // if (xQueueReceive(machine->m_eventQueue, eventBuffer, portMAX_DELAY) == pdTRUE) {
         if (xQueueReceive(machine->m_eventQueue, eventBuffer, (TickType_t) 100) == pdTRUE) {
             Event* event = reinterpret_cast<Event*>(eventBuffer);
 
-            // 处理事件
+            // Process event
             machine->handleEvent(event);
             continue;
         }
@@ -133,11 +133,11 @@ bool StateMachine::postEvent(const Event* event) {
         return false;
     }
 
-    // 复制事件到临时缓冲区
+    // Copy event into temporary buffer
     uint8_t eventBuffer[MAX_EVENT_SIZE];
     memcpy(eventBuffer, event, MAX_EVENT_SIZE);
 
-    // 发送到队列，不等待（立即返回）
+    // Send to the queue without waiting (return immediately)
     BaseType_t result = xQueueSendToBack(m_eventQueue, eventBuffer, 0);
     return (result == pdTRUE);
 }
@@ -168,7 +168,7 @@ bool StateMachine::handleEvent(const Event* event) {
     try {
         handled = state->handleEvent(this, event);
 
-        // 更新显示（如果事件被处理且导致了状态变化）
+    // Update display (if event is handled and causes state change)
         if (handled && m_displayContext) {
             if (xSemaphoreTake(m_stateMutex, portMAX_DELAY) == pdTRUE) {
                 State* currentState = m_currentState;
@@ -195,10 +195,10 @@ bool StateMachine::changeState(State* newState) {
         return false;
     }
 
-    // 检查是否实际需要状态变化
+    // Check if a state transition is actually needed
     if (newState == m_currentState) {
         xSemaphoreGive(m_stateMutex);
-        return true; // 已经是目标状态
+    return true; // Already the target state
     }
 
     State* oldState = m_currentState;
@@ -208,13 +208,13 @@ bool StateMachine::changeState(State* newState) {
     xSemaphoreGive(m_stateMutex);
 
     try {
-        // 退出旧状态
+    // Exit old state
         oldState->onExit();
 
-        // 进入新状态
+    // Enter new state
         newState->onEnter();
 
-        // 更新显示
+    // Update display
         if (m_displayContext) {
             newState->updateDisplay(m_displayContext);
         }
@@ -246,12 +246,12 @@ void StateMachine::setErrorHandler(ErrorHandler handler) {
 }
 
 void StateMachine::handleError(int errorCode, const char* errorMsg) {
-    // 调用错误处理器
+    // Invoke error handler callback
     if (m_errorHandler) {
         m_errorHandler(errorCode, errorMsg);
     }
 
-    // 如果有错误状态，切换到错误状态
+    // If error state exists, switch to it
     if (m_errorState && xSemaphoreTake(m_stateMutex, portMAX_DELAY) == pdTRUE) {
         if (m_currentState != m_errorState) {
             State* errorState = m_errorState;

@@ -42,7 +42,7 @@ void initStyle() {
     lv_style_set_pad_all(&style_focus_bg, 0);
     lv_style_set_border_width(&style_focus_bg, 2);
     lv_style_set_border_color(&style_focus_bg, lv_color_hex(0xACE62F));
-    lv_style_set_border_opa(&style_focus_bg, LV_OPA_COVER); // 设置边框不透明度为完全不透明
+    lv_style_set_border_opa(&style_focus_bg, LV_OPA_COVER); // Set border opacity to fully opaque
 
     lv_style_init(&style_focus_uart_bg);
     lv_style_set_bg_color(&style_focus_uart_bg, lv_color_hex(0x232325));
@@ -50,7 +50,7 @@ void initStyle() {
     lv_style_set_pad_all(&style_focus_uart_bg, 0);
     lv_style_set_border_width(&style_focus_uart_bg, 2);
     lv_style_set_border_color(&style_focus_uart_bg, lv_color_hex(0xACE62F));
-    lv_style_set_border_opa(&style_focus_uart_bg, LV_OPA_COVER); // 设置边框不透明度为完全不透明
+    lv_style_set_border_opa(&style_focus_uart_bg, LV_OPA_COVER); // Set border opacity to fully opaque
 
     lv_style_init(&style_nofocus_bg);
     lv_style_set_bg_color(&style_nofocus_bg, lv_color_hex(0x232325));
