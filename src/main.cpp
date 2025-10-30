@@ -64,7 +64,7 @@ void animBootCompleted(lv_anim_t* anim) {
 void initAnimBoot(lv_obj_t* scr) {
     lv_obj_t* animimg = lv_animimg_create(scr);
     lv_obj_center(animimg);
-    lv_animimg_set_src(animimg, (const void **) anim_boot_imgs, BOOT_FRAME_SIZE, false);
+    lv_animimg_set_src(animimg, (const void **) anim_boot_imgs, BOOT_FRAME_SIZE);
     lv_animimg_set_duration(animimg, 4850);
     lv_animimg_set_repeat_count(animimg, 1);
     lv_animimg_set_completed_cb(animimg, animBootCompleted);
@@ -152,6 +152,7 @@ void setup() {
     pinMode(BOOT_BTN, INPUT_PULLUP);
     pinMode(ENCODER_PINA, INPUT);
     pinMode(ENCODER_PINB, INPUT);
+    ShowSerial.setDebugOutput(true);
 
     // 注册状态
     StateManager* stateManager = StateManager::getInstance();
