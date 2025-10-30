@@ -12,7 +12,7 @@
 #include <TFT_eSPI.h>
 #endif
 
-// 显示上下文，提供绘图API
+// Display context providing drawing APIs
 class DisplayContext {
 private:
     SemaphoreHandle_t m_displayMutex;
@@ -76,12 +76,12 @@ public:
         digitalWrite(LED_LATCH, HIGH);
     }
 
-    // 获取显示锁
+    // Acquire display mutex
     bool lock(TickType_t timeout = portMAX_DELAY) {
         return (xSemaphoreTake(m_displayMutex, timeout) == pdTRUE);
     }
     
-    // 释放显示锁
+    // Release display mutex
     void unlock() {
         xSemaphoreGive(m_displayMutex);
     }

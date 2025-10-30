@@ -20,21 +20,20 @@
 #define DRAW_BUF_SIZE (TFT_HOR_RES * TFT_VER_RES / 10 * (LV_COLOR_DEPTH / 8))
 uint32_t draw_buf[DRAW_BUF_SIZE / 4];
 
-// 创建显示上下文
+// Create display context
 DisplayContext displayContext;
 
-// 创建状态机
+// Create state machine instance
 StateMachine stateMachine;
 
-// 创建输入任务
+// Create input task instance
 InputTask inputTask;
 
 Adafruit_INA228 ina228;
 
-// 错误处理回调
+// Error handler callback
 void appErrorHandler(int errorCode, const char* errorMsg) {
-    // 记录错误到日志
-    // 也可以通过UART发送错误信息
+    // Log error (optionally send via UART)
 }
 
 static uint32_t my_tick(void) {
@@ -98,8 +97,7 @@ void initINA228() {
 }
 
 void setup() {
-    // 硬件初始化
-    // TODO: 初始化MCU外设、显示屏等
+    // Hardware initialization
     initSerial();
     initLED();
     initLVGL();
@@ -113,55 +111,61 @@ void setup() {
     pinMode(ENCODER_PINB, INPUT);
     ShowSerial.setDebugOutput(true);
 
-    // 注册状态
+    // Register states
     StateManager* stateManager = StateManager::getInstance();
 
-    // 创建并注册主菜单状态
+    // Create and register main menu state
     MainMenuState* mainMenu = new MainMenuState();
     FunctionUartState* uartState = new FunctionUartState();
     FunctionBaudState* baudState = new FunctionBaudState();
     FunctionPowerState* powerState = new FunctionPowerState();
 
-    // 添加菜单项
+    // Add menu items
     mainMenu->addMenuItem("Function Uart", FunctionUartState::ID);
     mainMenu->addMenuItem("Function Power", FunctionPowerState::ID);
     stateManager->registerState(mainMenu);
 
-    // 注册功能状态
+    // Register functional states
     stateManager->registerState(uartState);
     stateManager->registerState(baudState);
     stateManager->registerState(powerState);
-    // TODO: 注册其他功能状态...
+    // TODO: Register other functional states...
 
-    // 创建错误状态
+    // Create error state
     ErrorState* errorState = new ErrorState();
     stateManager->registerState(errorState);
 
-    // 设置错误处理器
+    // Set error handler
     stateMachine.setErrorHandler(appErrorHandler);
 
     displayContext.setINA228(&ina228);
 
-    // 设置显示上下文
+    // Set display context
     stateMachine.setDisplayContext(&displayContext);
 
-    // 初始化状态机，以主菜单为初始状态，错误状态为异常处理状态
+    // Initialize state machine: main menu as initial state, error state for exception handling
     if (!stateMachine.init(mainMenu, errorState)) {
-        // 初始化失败处理
-        while(1); // 或者重启系统
+    // Handle initialization failure
+        while(1) {
+            ShowSerial.printf("StateMachine init failed here\n");
+            delay(100);
+        }
     }
 
     inputTask.setStateMachine(&stateMachine);
 
-    // 启动状态机任务
+    // Start state machine task
     if (!stateMachine.start(1)) {
-        // 启动失败处理
-        while(1);
+    // Handle start failure
+        while(1) {
+            ShowSerial.printf("StateMachine start failed here\n");
+            delay(100);
+        }
     }
 
-    // 启动输入任务
+    // Start input task
     if (!inputTask.start(2)) {
-        // 启动失败处理
+    // Handle input task start failure
         stateMachine.stop();
         while(1);
     }
