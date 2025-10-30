@@ -5,7 +5,7 @@
 #include "task.h"
 #include "StateMachine.h"
 
-// 枚举按键动作
+// Enumerate button actions
 enum ButtonAction {
     NoneAction,
     ButtonRelease,
@@ -29,16 +29,16 @@ public:
     InputTask();
     ~InputTask();
     
-    // 设置状态机引用
+    // Set state machine reference
     void setStateMachine(StateMachine* machine);
     
-    // 启动输入任务
+    // Start input tasks
     bool start(UBaseType_t priority = 2);
     
-    // 停止输入任务
+    // Stop input tasks
     void stop();
 
-    //按钮中断处理函数
+    // Button interrupt handler
     static void btnInterruptHandler(void);
 };
 
