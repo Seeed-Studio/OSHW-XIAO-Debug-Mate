@@ -111,6 +111,7 @@ void setup() {
     pinMode(BOOT_BTN, INPUT_PULLUP);
     pinMode(ENCODER_PINA, INPUT);
     pinMode(ENCODER_PINB, INPUT);
+    ShowSerial.setDebugOutput(true);
 
     // 注册状态
     StateManager* stateManager = StateManager::getInstance();
