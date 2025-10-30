@@ -15,14 +15,14 @@ struct BAUD_STATE_UI_T {
     lv_obj_t* labels[NUM_BAUDRATES];
 };
 
-// 特定功能状态
+// Specific function state (Baud rate configuration)
 class FunctionBaudState : public FunctionState {
 public:
     enum { ID = 3 };
 
     FunctionBaudState();
 
-    // 特定实现
+    // Specific implementation
     virtual void updateDisplay(DisplayContext* display);
     void scroll_anim(lv_obj_t* obj, int32_t v);
     void changeBaudRate();
