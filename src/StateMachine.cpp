@@ -11,8 +11,7 @@ StateMachine::StateMachine()
       m_stateMutex(nullptr), // NOTE: need check
       m_displayContext(nullptr),
       m_eventQueue(nullptr), // NOTE: need check
-      m_stateMachineTask(nullptr),
-      m_isBootCompleted(false)
+      m_stateMachineTask(nullptr)
 {
 }
 
@@ -84,10 +83,6 @@ void StateMachine::stop() {
 
 void StateMachine::stateMachineTaskFunc(void* params) {
     StateMachine* machine = static_cast<StateMachine*>(params);
-
-    while (!machine->m_isBootCompleted) {
-        vTaskDelay(30);
-    }
 
     // Call onEnter of the initial state first
     if (xSemaphoreTake(machine->m_stateMutex, (TickType_t) 10) == pdTRUE) {
@@ -288,12 +283,4 @@ void StateMachine::requestDisplayUpdate() {
         state->updateDisplay(m_displayContext);
         lv_timer_handler();
     }
-}
-
-void StateMachine::setBootCompleted() {
-    m_isBootCompleted = true;
-}
-
-bool StateMachine::getBootCompleted() {
-    return m_isBootCompleted;
 }

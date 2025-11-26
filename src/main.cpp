@@ -14,7 +14,6 @@
 #include "Global.h"
 #include "Tool.h"
 #include "LvglStyle.h"
-#include "frame.h"
 
 #include <Adafruit_INA228.h>
 
@@ -54,34 +53,7 @@ void initLED() {
     pinMode(LED_CLOCK, OUTPUT);
     pinMode(LED_LATCH, OUTPUT);
 
-    displayContext.updateBaudLED(1, true);
-}
-
-void animBootCompleted(lv_anim_t* anim) {
-    stateMachine.setBootCompleted();
-}
-
-void initAnimBoot(lv_obj_t* scr) {
-    lv_obj_t* animimg = lv_animimg_create(scr);
-    lv_obj_center(animimg);
-    lv_animimg_set_src(animimg, (const void **) anim_boot_imgs, BOOT_FRAME_SIZE);
-    lv_animimg_set_duration(animimg, 4850);
-    lv_animimg_set_repeat_count(animimg, 1);
-    lv_animimg_set_completed_cb(animimg, animBootCompleted);
-    lv_animimg_start(animimg);
-}
-
-static void bootTaskFunc(void* params) {
-    initAnimBoot(lv_scr_act());
-
-    while (true) {
-        if (stateMachine.getBootCompleted()) {
-            vTaskDelete(NULL);
-        }
-
-        lv_timer_handler();
-        vTaskDelay(30);
-    }
+    displayContext.updateBaudLED(1, false);
 }
 
 void initLVGL() {
@@ -99,21 +71,7 @@ void initLVGL() {
 
     lv_obj_add_style(lv_scr_act(), &style_screen, 0);
 
-    xTaskCreate(
-        bootTaskFunc,
-        "boot Task Func",
-        8192,
-        nullptr,
-        1,
-        nullptr
-    );
-
-    while (true) {
-        if (stateMachine.getBootCompleted()) {
-            break;
-        }
-        delay(100);
-    }
+    lv_timer_handler();
 }
 
 void initINA228() {
@@ -210,10 +168,7 @@ void setup() {
     if (!inputTask.start(2)) {
     // Handle input task start failure
         stateMachine.stop();
-        while(1) {
-            ShowSerial.printf("InputTask start failed here\n");
-            delay(100);
-        }
+        while(1);
     }
 
     ShowSerial.printf("All settings are successful\n");
