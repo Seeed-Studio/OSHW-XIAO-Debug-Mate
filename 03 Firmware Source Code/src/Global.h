@@ -13,6 +13,8 @@
 #define LED_CLOCK   7
 #define LED_LATCH   8
 
+#define TFT_BL      38
+
 #define MOS1_PIN     16
 #define MOS2_PIN     15
 #define INA_I2C_SDA  4
