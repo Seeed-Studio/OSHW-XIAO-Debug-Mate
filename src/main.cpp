@@ -143,6 +143,7 @@ void setup() {
     initSerial();
     initLED();
     initLVGL();
+    displayContext.setBrightness(70);
     initStyle();
     initDapLink();
     ShowSerial.begin(FunctionBaudState::m_baudRate);
