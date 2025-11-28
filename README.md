@@ -114,7 +114,7 @@ cd 5_Release_firmware
 #### Prerequisites
 
 - **Arduino IDE** 2.x or later
-- **ESP32 Board Support** installed via Arduino Board Manager
+- **ESP32 Board Support** (version 3.1.3, installed via Arduino Board Manager)
 - **USB-C Cable** for programming
 
 #### Quick Start
@@ -127,10 +127,18 @@ cd OSHW-XIAO-Debug-Mate
 
 2️⃣ **Install Libraries**
 
-Copy all libraries from `1_Libraries/` to your Arduino libraries folder:
+Copy all libraries from `1_Libraries/` and the firmware library to your Arduino libraries folder:
 ```bash
+# macOS / Linux
 cp -r 1_Libraries/* ~/Documents/Arduino/libraries/
+cp -r 0_Firmware ~/Documents/Arduino/libraries/Seeed_Debugger
+
+# Windows
+xcopy /E /I 1_Libraries\* "%USERPROFILE%\Documents\Arduino\libraries\"
+xcopy /E /I 0_Firmware "%USERPROFILE%\Documents\Arduino\libraries\Seeed_Debugger"
 ```
+
+> ⚠️ **Important:** The firmware must be installed as an Arduino library to compile correctly.
 
 3️⃣ **Configure Arduino IDE**
 
@@ -142,7 +150,9 @@ Set the following options in Arduino IDE:
 
 4️⃣ **Upload Firmware**
 
-Open `0_Firmware/examples/main/main.ino` and upload to your XIAO Debug Mate.
+- Go to **File → Examples → Seeed All-in-one Debugger → main**
+- Or open `0_Firmware/examples/main/main.ino` directly
+- Click **Upload**
 
 ## 📁 Project Structure
 

@@ -1,6 +1,35 @@
 # 🔧 XIAO Debug Mate Firmware
 
-This directory contains the main firmware source code for the XIAO Debug Mate debugger.
+This directory contains the main firmware source code for the XIAO Debug Mate. The firmware is structured as an **Arduino Library** and must be installed in your Arduino libraries folder to use.
+
+## 📦 Installation
+
+### Method 1: Copy to Arduino Libraries (Recommended)
+
+Copy the entire `0_Firmware` folder to your Arduino libraries directory and rename it:
+
+```bash
+# macOS
+cp -r 0_Firmware ~/Documents/Arduino/libraries/Seeed_Debugger
+
+# Windows
+xcopy /E /I 0_Firmware "%USERPROFILE%\Documents\Arduino\libraries\Seeed_Debugger"
+
+# Linux
+cp -r 0_Firmware ~/Arduino/libraries/Seeed_Debugger
+```
+
+### Method 2: Symbolic Link (For Development)
+
+Create a symbolic link if you want to develop and modify the firmware:
+
+```bash
+# macOS / Linux
+ln -s "$(pwd)/0_Firmware" ~/Documents/Arduino/libraries/Seeed_Debugger
+
+# Windows (Run as Administrator)
+mklink /D "%USERPROFILE%\Documents\Arduino\libraries\Seeed_Debugger" "%cd%\0_Firmware"
+```
 
 ## 📁 Directory Structure
 
@@ -17,7 +46,7 @@ This directory contains the main firmware source code for the XIAO Debug Mate de
 │   ├── FunctionUartState.*   # UART bridge function
 │   ├── FunctionBaudState.*   # Baud rate configuration
 │   ├── FunctionPowerState.*  # Power monitoring function
-│   ├── InputTask.*       # Encoder and button input handling
+│   ├── InputTask.*       # Scroll wheel and button input handling
 │   ├── DisplayContext.*  # Display management
 │   ├── LvglStyle.*       # LVGL UI styling
 │   ├── Tool.*            # Utility functions
@@ -32,25 +61,44 @@ This directory contains the main firmware source code for the XIAO Debug Mate de
 ### Prerequisites
 
 1. **Arduino IDE 2.x** or later
-2. **ESP32 Board Package** installed
-3. All libraries from `1_Libraries/` installed
+2. **ESP32 Board Package** version 3.1.3 installed via Board Manager
+3. All libraries from `1_Libraries/` installed (see [1_Libraries/README.md](../1_Libraries/README.md))
+4. This firmware library installed (see Installation above)
 
-### Arduino IDE Configuration
+### Step 1: Install Required Libraries
+
+Copy all libraries from `1_Libraries/` to your Arduino libraries folder:
+
+```bash
+# macOS
+cp -r ../1_Libraries/* ~/Documents/Arduino/libraries/
+
+# Windows
+xcopy /E /I ..\1_Libraries\* "%USERPROFILE%\Documents\Arduino\libraries\"
+
+# Linux
+cp -r ../1_Libraries/* ~/Arduino/libraries/
+```
+
+### Step 2: Configure Arduino IDE
 
 Configure the following settings in Arduino IDE:
 
 | Setting | Value |
 |---------|-------|
-| Board | XIAO ESP32S3 |
-| Partition Scheme | Maximum APP (7.9MB APP No OTA/No FS) |
-| PSRAM | OPI PSRAM |
-| USB Mode | USB-OTG (TinyUSB) |
+| **Board** | XIAO ESP32S3 |
+| **Partition Scheme** | Maximum APP (7.9MB APP No OTA/No FS) |
+| **PSRAM** | OPI PSRAM |
+| **USB Mode** | USB-OTG (TinyUSB) |
 
-### Uploading Firmware
+### Step 3: Open and Upload
 
-1. Open `examples/main/main.ino` in Arduino IDE
-2. Select the correct board and port
-3. Click Upload
+1. In Arduino IDE, go to **File → Examples → Seeed All-in-one Debugger → main**
+2. Or open `examples/main/main.ino` directly
+3. Select the correct port (your XIAO Debug Mate)
+4. Click **Upload**
+
+> 💡 **Tip:** If the device is not detected, enter Boot Mode by holding BOOT button while pressing RESET.
 
 ## 🏗️ Architecture
 
@@ -83,14 +131,14 @@ The firmware uses a **State Machine** architecture for managing different operat
 - Provides error state fallback
 
 ### Input Task (`InputTask.*`)
-- Handles rotary encoder rotation
+- Handles scroll wheel rotation
 - Debounces button presses
 - Detects long press events
 - Sends events to state machine via FreeRTOS queue
 
 ### Display Context (`DisplayContext.*`)
 - Manages LVGL display operations
-- Controls status LEDs
+- Controls 36-LED status matrix
 - Interfaces with INA228 power monitor
 
 ### DAPLink (`DapLink.*`)
@@ -104,18 +152,18 @@ The firmware uses a **State Machine** architecture for managing different operat
 
 | Function | Description |
 |----------|-------------|
-| **UART Mode** | Serial bridge between USB and target device |
-| **Power Mode** | Real-time voltage and current monitoring |
+| **UART Mode** | Serial monitor & UART passthrough |
+| **Power Mode** | Precision power profiling (μA level) |
 
 ### UART Mode Features
 - Configurable baud rate (9600 - 921600)
-- TX/RX data visualization
-- Auto-detect baud rate (future)
+- Real-time TX/RX data visualization on display
+- 36-LED matrix shows current baud rate
 
 ### Power Mode Features
-- Real-time voltage display
-- Current measurement
-- Power calculation
+- Real-time voltage/current display
+- μA level precision (factory-calibrated)
+- Peak/valley identification
 
 ## ⚙️ Configuration
 
@@ -135,7 +183,7 @@ The firmware uses a **State Machine** architecture for managing different operat
 
 ```cpp
 #define TFT_HOR_RES   240
-#define TFT_VER_RES   320
+#define TFT_VER_RES   296
 #define TFT_ROTATION  LV_DISPLAY_ROTATION_90
 ```
 
@@ -153,7 +201,7 @@ Debug messages can be viewed via the Arduino Serial Monitor.
 
 To add a new function state:
 
-1. Create new state files (e.g., `NewFunctionState.h/.cpp`)
+1. Create new state files (e.g., `NewFunctionState.h/.cpp`) in the `src/` folder
 2. Inherit from `State` base class
 3. Implement required virtual methods:
    - `enter()` - Called when entering state
@@ -164,7 +212,28 @@ To add a new function state:
    NewFunctionState* newState = new NewFunctionState();
    stateManager->registerState(newState);
    ```
-5. Add menu item in main menu
+5. Add menu item in MainMenuState
+
+## ⚠️ Troubleshooting
+
+### Library Not Found
+
+If Arduino IDE can't find the library:
+1. Make sure the folder is named correctly in the libraries directory
+2. Restart Arduino IDE after installing
+3. Check **File → Examples** to see if "Seeed All-in-one Debugger" appears
+
+### Compilation Errors
+
+1. Ensure all dependencies from `1_Libraries/` are installed
+2. Check that ESP32 board package version is 3.1.3
+3. Verify Arduino IDE settings match the table above
+
+### Upload Failed
+
+1. Enter Boot Mode: Hold BOOT → Press RESET → Release BOOT
+2. Select the correct COM port
+3. Try a different USB cable (use data cable, not charge-only)
 
 ## 📄 License
 
