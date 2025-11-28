@@ -57,12 +57,12 @@ git clone --depth 1 https://github.com/Lesords/lvgl.git -b feat/Debugger
 | **lvgl** | `feat/Debugger` | [Lesords/lvgl](https://github.com/Lesords/lvgl/tree/feat/Debugger) | LVGL graphics library (custom fork) |
 | **Adafruit_INA228** | 2.0.1 | [adafruit/Adafruit_INA228](https://github.com/adafruit/Adafruit_INA228) | Power monitor driver |
 | **Adafruit_TinyUSB** | 3.4.4 | [adafruit/Adafruit_TinyUSB_Arduino](https://github.com/adafruit/Adafruit_TinyUSB_Arduino) | USB device stack |
-| **Adafruit_BusIO** | - | [adafruit/Adafruit_BusIO](https://github.com/adafruit/Adafruit_BusIO) | I2C/SPI abstraction layer |
+| **Adafruit_BusIO** | 1.17.4 | [adafruit/Adafruit_BusIO](https://github.com/adafruit/Adafruit_BusIO) | I2C/SPI abstraction layer |
 | **I2C_EEPROM** | 1.9.4 | [RobTillaart/I2C_EEPROM](https://github.com/RobTillaart/I2C_EEPROM) | I2C EEPROM library |
-| **Adafruit_NeoPixel** | - | [adafruit/Adafruit_NeoPixel](https://github.com/adafruit/Adafruit_NeoPixel) | RGB LED driver |
-| **Adafruit_SPIFlash** | - | [adafruit/Adafruit_SPIFlash](https://github.com/adafruit/Adafruit_SPIFlash) | SPI Flash support |
-| **SdFat** | - | [adafruit/SdFat](https://github.com/adafruit/SdFat) | SD card FAT filesystem |
-| **MIDI_Library** | - | [FortySevenEffects/arduino_midi_library](https://github.com/FortySevenEffects/arduino_midi_library) | MIDI communication |
+| **Adafruit_NeoPixel** | 1.3.3 | [adafruit/Adafruit_NeoPixel](https://github.com/adafruit/Adafruit_NeoPixel) | RGB LED driver |
+| **Adafruit_SPIFlash** | 5.1.1 | [adafruit/Adafruit_SPIFlash](https://github.com/adafruit/Adafruit_SPIFlash) | SPI Flash support |
+| **SdFat** | 2.3.54 | [adafruit/SdFat](https://github.com/adafruit/SdFat) | SD card FAT filesystem |
+| **MIDI_Library** | 5.0.2 | [FortySevenEffects/arduino_midi_library](https://github.com/FortySevenEffects/arduino_midi_library) | MIDI communication |
 
 ## ⚠️ Important: Custom Library Branches
 
