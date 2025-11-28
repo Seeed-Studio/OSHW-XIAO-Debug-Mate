@@ -1,6 +1,6 @@
 #include "ErrorState.h"
 
-// ErrorState implementation
+// ErrorState实现
 ErrorState::ErrorState()
     : m_errorCode(0),
       m_errorMessage("Unknown error")
@@ -13,7 +13,7 @@ void ErrorState::setError(int code, const char* message) {
 }
 
 void ErrorState::onEnter() {
-    // Log error information
+    // 记录错误信息到日志
 }
 
 bool ErrorState::handleEvent(StateMachine* machine, const Event* event) {
@@ -21,7 +21,7 @@ bool ErrorState::handleEvent(StateMachine* machine, const Event* event) {
         return false;
     }
 
-    // Any button press returns to main menu
+    // 任何按钮按下都返回主菜单
     if (event->getType() == EVENT_BUTTON_PRESS) {
         State* mainMenu = StateManager::getInstance()->getState(MainMenuState::ID);
         if (mainMenu) {

@@ -6,27 +6,27 @@
 
 class StateMachine;
 
-// State interface
+// 状态接口
 class State {
 public:
     virtual ~State() {}
     
-    // Called when entering this state
+    // 进入此状态时调用
     virtual void onEnter() {}
     
-    // Called when exiting this state
+    // 离开此状态时调用
     virtual void onExit() {}
     
-    // Handle incoming event
+    // 事件处理
     virtual bool handleEvent(StateMachine* machine, const Event* event) = 0;
     
-    // Update display contents
+    // 更新显示
     virtual void updateDisplay(DisplayContext* display) = 0;
     
-    // State ID
+    // 状态ID
     virtual int getID() const = 0;
     
-    // State name (for debugging)
+    // 状态名称，用于调试
     virtual const char* getName() const = 0;
 };
 

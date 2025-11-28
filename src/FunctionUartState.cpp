@@ -186,23 +186,25 @@ void FunctionUartState::createMessageUI() {
 
     // RX Area
     m_uartStateUI.UartRxBg= lv_obj_create(m_uartStateUI.UartRxGroup);
-    lv_obj_set_size(m_uartStateUI.UartRxBg, 245, 77);
-    lv_obj_set_pos(m_uartStateUI.UartRxBg, 27, 0);
-    lv_obj_add_style(m_uartStateUI.UartRxBg, &style_nofocus_bg, 0);
+    lv_obj_set_size(m_uartStateUI.UartRxBg, 225, 77);
+    lv_obj_set_pos(m_uartStateUI.UartRxBg, 40, 0);
+    //lv_obj_add_style(m_uartStateUI.UartRxBg, &style_nofocus_bg, 0);
+    lv_obj_add_style(m_uartStateUI.UartRxBg, &style_uart_area_bg, 0);
 
     m_uartStateUI.UartRxTextArea = lv_textarea_create(m_uartStateUI.UartRxGroup);
     lv_obj_set_size(m_uartStateUI.UartRxTextArea, 215, 59);
-    lv_obj_set_pos(m_uartStateUI.UartRxTextArea, 42, 9);
+    lv_obj_set_pos(m_uartStateUI.UartRxTextArea, 45, 9);
     lv_textarea_set_one_line(m_uartStateUI.UartRxTextArea, false);
-    lv_obj_set_style_text_color(m_uartStateUI.UartRxTextArea, lv_color_hex(0xFFFFFF), LV_PART_MAIN);
+    lv_obj_set_style_text_color(m_uartStateUI.UartRxTextArea, lv_color_hex(0xE0E0E0), LV_PART_MAIN);
+    lv_obj_set_style_bg_opa(m_uartStateUI.UartRxTextArea, LV_OPA_TRANSP, LV_PART_MAIN); 
     lv_obj_set_style_border_width(m_uartStateUI.UartRxTextArea, 0, LV_PART_MAIN);
     lv_obj_add_style(m_uartStateUI.UartRxTextArea, &style_font_14, 0);
-    lv_obj_add_style(m_uartStateUI.UartRxTextArea, &style_nofocus_bg, 0);
+    //lv_obj_add_style(m_uartStateUI.UartTxTextArea, &style_nofocus_bg, 0);
 
     // TX Group
     m_uartStateUI.UartTxGroup = lv_obj_create(m_uartStateUI.Screen);
     lv_obj_set_size(m_uartStateUI.UartTxGroup, 272, 77);
-    lv_obj_set_pos(m_uartStateUI.UartTxGroup, 12 + 12, 151);
+    lv_obj_set_pos(m_uartStateUI.UartTxGroup, 12 + 12, 148);
     lv_obj_add_style(m_uartStateUI.UartTxGroup, &style_screen, 0);
 
     // TX
@@ -221,18 +223,19 @@ void FunctionUartState::createMessageUI() {
 
     // TX Area
     m_uartStateUI.UartTxBg = lv_obj_create(m_uartStateUI.UartTxGroup);
-    lv_obj_set_size(m_uartStateUI.UartTxBg, 245, 77);
-    lv_obj_set_pos(m_uartStateUI.UartTxBg, 27, 0);
-    lv_obj_add_style(m_uartStateUI.UartTxBg, &style_nofocus_bg, 0);
+    lv_obj_set_size(m_uartStateUI.UartTxBg, 225, 77);
+    lv_obj_set_pos(m_uartStateUI.UartTxBg, 40, 0);
+    //lv_obj_add_style(m_uartStateUI.UartTxBg, &style_nofocus_bg, 0);
+    lv_obj_add_style(m_uartStateUI.UartTxBg, &style_uart_area_bg, 0);
 
     m_uartStateUI.UartTxTextArea = lv_textarea_create(m_uartStateUI.UartTxGroup);
     lv_obj_set_size(m_uartStateUI.UartTxTextArea, 215, 59);
-    lv_obj_set_pos(m_uartStateUI.UartTxTextArea, 42, 9);
+    lv_obj_set_pos(m_uartStateUI.UartTxTextArea, 45, 9);
     lv_textarea_set_one_line(m_uartStateUI.UartTxTextArea, false);
-    lv_obj_set_style_text_color(m_uartStateUI.UartTxTextArea, lv_color_hex(0xFFFFFF), LV_PART_MAIN);
+    lv_obj_set_style_text_color(m_uartStateUI.UartTxTextArea, lv_color_hex(0xE0E0E0), LV_PART_MAIN);
+    lv_obj_set_style_bg_opa(m_uartStateUI.UartTxTextArea, LV_OPA_TRANSP, LV_PART_MAIN);
     lv_obj_set_style_border_width(m_uartStateUI.UartTxTextArea, 0, LV_PART_MAIN);
     lv_obj_add_style(m_uartStateUI.UartTxTextArea, &style_font_14, 0);
-    lv_obj_add_style(m_uartStateUI.UartTxTextArea, &style_nofocus_bg, 0);
 }
 
 void FunctionUartState::onEnter()

@@ -26,7 +26,7 @@ bool InputTask::start(UBaseType_t priority) {
         return false;
     }
 
-    // Create wheel (encoder) task
+    // 创建滚轮任务
     BaseType_t result = xTaskCreate(
         wheelTaskFunc,
         "WheelTask",
@@ -40,7 +40,7 @@ bool InputTask::start(UBaseType_t priority) {
         return false;
     }
 
-    // Create button task
+    // 创建按钮任务
     result = xTaskCreate(
         buttonTaskFunc,
         "ButtonTask",
@@ -146,7 +146,7 @@ void InputTask::buttonTaskFunc(void* params) {
             stateMachine->postEvent(&event);
         }
 
-    // Button scan delay
+        // 按钮检测延迟
         vTaskDelay(pdMS_TO_TICKS(100));
     }
 }
@@ -157,14 +157,14 @@ void InputTask::btnInterruptHandler()
     unsigned long interruptTime = millis();
     static unsigned long pressStartTime = 0;
 
-    // If interrupt interval < 50ms treat as debounce noise
+    // 如果中断触发的时间间隔小于50ms，认为是抖动
     if (interruptTime - lastInterruptTime > DEBOUNCE_DELAT) {
         lastInterruptTime = interruptTime;
-    // Read actual button state
+        // 读取按钮的实际状态
         bool btnState = digitalRead(BOOT_BTN);
 
         if (btnState == LOW) {
-            // Button pressed: record press start time
+            // 按下按钮,记录按下时间
             pressStartTime = millis();
         } else {
             unsigned long pressDuration = millis() - pressStartTime;

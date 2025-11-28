@@ -4,7 +4,7 @@
 #include "MenuStates.h"
 #include "StateManager.h"
 
-// Error state
+// 错误状态
 class ErrorState : public State {
 private:
     int m_errorCode;
@@ -17,7 +17,7 @@ public:
 
     void setError(int code, const char* message);
 
-    // Implement State interface
+    // 实现State接口
     virtual void onEnter();
     virtual bool handleEvent(StateMachine* machine, const Event* event);
     virtual void updateDisplay(DisplayContext* display);

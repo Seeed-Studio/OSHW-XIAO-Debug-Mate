@@ -8,6 +8,7 @@ extern lv_style_t style_rxtx_bg;
 extern lv_style_t style_focus_bg;
 extern lv_style_t style_focus_uart_bg;
 extern lv_style_t style_nofocus_bg;
+extern lv_style_t style_uart_area_bg;
 extern lv_style_t style_nofocus_uart_bg;
 extern lv_style_t style_led;
 extern lv_style_t style_uart_line;

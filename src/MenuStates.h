@@ -5,7 +5,7 @@
 #include "StateMachine.h"
 #include "DisplayContext.h"
 
-// Menu item structure
+// 菜单项结构
 struct MenuItem {
     const char* label;
     int stateId;
@@ -24,7 +24,7 @@ struct MAIN_MENU_T {
     lv_obj_t* power;
 };
 
-// Main menu state
+// 主菜单状态
 class MainMenuState : public State {
 private:
     static const int MAX_ITEMS = 10;
@@ -38,10 +38,10 @@ public:
     
     MainMenuState();
     
-    // Add a menu item
+    // 添加菜单项
     bool addMenuItem(const char* label, int stateId);
     
-    // Implement State interface
+    // 实现State接口
     virtual void onEnter();
     virtual void onExit();
     virtual bool handleEvent(StateMachine* machine, const Event* event);
@@ -50,15 +50,16 @@ public:
     virtual const char* getName() const { return "MainMenu"; }
 };
 
-// Functional base state
+// 功能基类状态
 class FunctionState : public State {
 protected:
     const char* m_title;
     
 public:
     FunctionState(const char* title) : m_title(title) {}
+    virtual ~FunctionState() {}
     
-    // Shared implementation
+    // 共用实现
     virtual void onEnter();
     virtual void onExit();
     virtual bool handleEvent(StateMachine* machine, const Event* event);

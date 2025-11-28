@@ -34,13 +34,13 @@ struct UartStateUI {
     lv_obj_t* UartTxTextArea;
 };
 
-// Enumerate UART types
+// 枚举串口类型
 enum UartType{
     UART_TYPE_XIAO,
     UART_TYPE_Grove
 };
 
-// Specific function state for UART feature
+// 特定功能状态
 class FunctionUartState : public FunctionState {
 private:
     UartType m_uartType;
@@ -62,7 +62,7 @@ public:
     FunctionUartState();
     void onEnter() override;
     void onExit() override;
-    // Specific implementation
+    // 特定实现
     void updateLedEffect();
     void updateDisplay(DisplayContext* display) override;
     int getID() const override;

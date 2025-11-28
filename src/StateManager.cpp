@@ -36,7 +36,7 @@ bool StateManager::registerState(State* state) {
         return false;
     }
 
-    // Replace existing state if already registered
+    // 已存在则替换
     if (m_states[id]) {
         delete m_states[id];
     }

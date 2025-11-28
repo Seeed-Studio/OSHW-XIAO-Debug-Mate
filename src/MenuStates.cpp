@@ -6,12 +6,12 @@
 #include "FunctionBaudState.h"
 #include "DapLink.h"
 
-// MainMenuState implementation
+// MainMenuState实现
 MainMenuState::MainMenuState() 
     : m_itemCount(0), 
       m_currentSelection(0) 
 {
-    // Initialize menu item array
+    // 初始化菜单项数组
     for (int i = 0; i < MAX_ITEMS; ++i) {
         m_items[i].label = nullptr;
         m_items[i].stateId = 0;
@@ -35,7 +35,7 @@ bool MainMenuState::addMenuItem(const char* label, int stateId) {
 }
 
 void MainMenuState::onEnter() {
-    // Reset selection position
+    // 重置选择位置
     m_currentSelection = -1;
 
     if (m_mainMenu.screen != nullptr) {
@@ -63,7 +63,7 @@ void MainMenuState::onEnter() {
     lv_obj_add_style(label, &style_font_28, 0);
 
     label = lv_label_create(m_mainMenu.screen);
-    lv_label_set_text( label, "v1.0" );
+    lv_label_set_text( label, FIRMWARE_VERSION );
     lv_obj_align_to(label, m_mainMenu.screen, LV_ALIGN_TOP_RIGHT, -40, 38);
     lv_obj_set_style_text_color(label, lv_color_hex(0x808080), LV_PART_MAIN);
     lv_obj_add_style(label, &style_font_14, 0);
@@ -130,7 +130,7 @@ void MainMenuState::onEnter() {
     lv_obj_set_pos(m_mainMenu.power_bg, 12 + 132, 62);
     lv_obj_add_style(m_mainMenu.power_bg, &style_nofocus_bg, 0);
 
-    // Voltage indicator
+    // 电压
     label = lv_label_create(m_mainMenu.power_bg);
     lv_label_set_text(label, "U");
     lv_obj_set_pos(label, 12, 20);
@@ -143,7 +143,7 @@ void MainMenuState::onEnter() {
     lv_obj_set_style_text_color(label, lv_color_hex(0xFFFFFF), LV_PART_MAIN);
     lv_obj_add_style(label, &style_font_14, 0);
 
-    // Current indicator
+    // 电流
     label = lv_label_create(m_mainMenu.power_bg);
     lv_label_set_text(label, "I");
     lv_obj_set_pos(label, 12, 64);
@@ -156,7 +156,7 @@ void MainMenuState::onEnter() {
     lv_obj_set_style_text_color(label, lv_color_hex(0xFFFFFF), LV_PART_MAIN);
     lv_obj_add_style(label, &style_font_14, 0);
 
-    // Power indicator
+    // 功耗
     label = lv_label_create(m_mainMenu.power_bg);
     lv_label_set_text(label, "P");
     lv_obj_set_pos(label, 12, 107);
@@ -193,7 +193,7 @@ void MainMenuState::onEnter() {
 }
 
 void MainMenuState::onExit() {
-    // Cleanup work (none for now)
+    // 清理工作
 }
 
 bool MainMenuState::handleEvent(StateMachine* machine, const Event* event) {
@@ -298,7 +298,7 @@ void MainMenuState::updateDisplay(DisplayContext* display) {
     snprintf(value, sizeof(value), "%.4f", cur);
     lv_label_set_text(m_mainMenu.cur, value);
 
-    // If current > 1A set label color to red
+    // 超过 1A 标签改成红色
     lv_obj_set_style_text_color(
         m_mainMenu.cur, 
         lv_color_hex(cur > 1.0f ? 0xFF0000 : 0xFFFFFF), 
@@ -307,4 +307,18 @@ void MainMenuState::updateDisplay(DisplayContext* display) {
 
     snprintf(value, sizeof(value), "%.4f", power);
     lv_label_set_text(m_mainMenu.power, value);
+}
+
+// FunctionState实现
+void FunctionState::onEnter() {
+    // 默认实现，子类可以覆盖
+}
+
+void FunctionState::onExit() {
+    // 默认实现，子类可以覆盖
+}
+
+bool FunctionState::handleEvent(StateMachine* machine, const Event* event) {
+    // 默认实现，子类可以覆盖
+    return false;
 }

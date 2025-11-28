@@ -1,6 +1,8 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
+#define FIRMWARE_VERSION "v1.1"
+
 #define BOOT_BTN 0
 #define ENCODER_PINA 18
 #define ENCODER_PINB 17
@@ -12,8 +14,6 @@
 #define LED_DATA    9
 #define LED_CLOCK   7
 #define LED_LATCH   8
-
-#define TFT_BL      38
 
 #define MOS1_PIN     16
 #define MOS2_PIN     15

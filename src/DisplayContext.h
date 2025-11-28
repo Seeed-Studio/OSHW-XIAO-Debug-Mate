@@ -5,8 +5,6 @@
 #include "semphr.h"
 #include "Global.h"
 
-#include <Arduino.h>
-#include <esp_arduino_version.h>
 #include <Adafruit_INA228.h>
 #include <lvgl.h>
 
@@ -14,7 +12,7 @@
 #include <TFT_eSPI.h>
 #endif
 
-// Display context providing drawing APIs
+// 显示上下文，提供绘图API
 class DisplayContext {
 private:
     SemaphoreHandle_t m_displayMutex;
@@ -52,20 +50,6 @@ public:
         }
     }
 
-    void setBrightness(uint8_t percent) {
-        if (percent > 100) percent = 100;
-        int duty = (percent * 255) / 100;
-
-#if ESP_ARDUINO_VERSION >= ESP_ARDUINO_VERSION_VAL(3, 0, 0)
-        ledcAttach(TFT_BL, 5000, 8);
-        ledcWrite(TFT_BL, duty);
-#else
-        ledcSetup(0, 5000, 8);
-        ledcAttachPin(TFT_BL, 0);
-        ledcWrite(0, duty);
-#endif
-    }
-
     Adafruit_INA228* getINA228() {
         updateShuntOfINA();
         return m_ina228;
@@ -92,12 +76,12 @@ public:
         digitalWrite(LED_LATCH, HIGH);
     }
 
-    // Acquire display mutex
+    // 获取显示锁
     bool lock(TickType_t timeout = portMAX_DELAY) {
         return (xSemaphoreTake(m_displayMutex, timeout) == pdTRUE);
     }
     
-    // Release display mutex
+    // 释放显示锁
     void unlock() {
         xSemaphoreGive(m_displayMutex);
     }

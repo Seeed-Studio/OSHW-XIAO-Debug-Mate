@@ -3,32 +3,32 @@
 
 #include "State.h"
 
-#define MAX_STATES 20  // Maximum number of states
+#define MAX_STATES 20  // 最大状态数
 
 class StateManager {
 private:
     static StateManager* s_instance;
-    State* m_states[MAX_STATES];  // Array of state pointers
+    State* m_states[MAX_STATES];  // 状态数组
 
-    // Private constructor for singleton pattern
+    // 私有构造函数，实现单例模式
     StateManager();
     
 public:
     ~StateManager();
 
-    // Get singleton instance
+    // 获取单例实例
     static StateManager* getInstance();
 
-    // Release singleton instance
+    // 释放单例
     static void releaseInstance();
 
-    // Register a state
+    // 注册状态
     bool registerState(State* state);
 
-    // Get a state by ID
+    // 获取状态
     State* getState(int stateId) const;
 
-    // Count of registered states
+    // 状态数量
     int getStateCount() const;
 };
 

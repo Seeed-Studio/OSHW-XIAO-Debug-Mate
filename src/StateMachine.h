@@ -9,7 +9,7 @@
 #include "semphr.h"
 
 #define EVENT_QUEUE_SIZE 10
-#define MAX_EVENT_SIZE sizeof(WheelEvent) // Use size of the largest event type
+#define MAX_EVENT_SIZE sizeof(WheelEvent) // 使用最大的事件类型尺寸
 
 typedef void (*ErrorHandler)(int errorCode, const char* errorMsg);
 
@@ -29,47 +29,47 @@ private:
 
     bool m_isBootCompleted;
 
-    // Internal methods
+    // 内部方法
     static void stateMachineTaskFunc(void* params);
 
 public:
     StateMachine();
     ~StateMachine();
 
-    // Initialize the state machine
+    // 初始化状态机
     bool init(State* initialState, State* errorState = 0);
 
-    // Start state machine task
+    // 启动状态机任务
     bool start(UBaseType_t priority = 1);
 
-    // Stop state machine task
+    // 停止状态机任务
     void stop();
 
-    // Push an event to the queue
+    // 推送事件到队列
     bool postEvent(const Event* event);
 
-    // Handle event (called by task loop)
+    // 事件处理（由状态机任务调用）
     bool handleEvent(const Event* event);
 
-    // State transition
+    // 状态转换
     bool changeState(State* newState);
 
-    // Return to previous state
+    // 返回到前一个状态
     bool goToPreviousState();
 
-    // Set error handler callback
+    // 设置错误处理器
     void setErrorHandler(ErrorHandler handler);
 
-    // Trigger error handling
+    // 触发错误处理
     void handleError(int errorCode, const char* errorMsg);
 
-    // Get current state
+    // 获取当前状态
     State* getCurrentState(); // NOTE: no use now
 
-    // Set display context
+    // 设置显示上下文
     void setDisplayContext(DisplayContext* display);
 
-    // Request display update
+    // 请求更新显示
     void requestDisplayUpdate(); // NOTE: no use now
 
     void setBootCompleted();
