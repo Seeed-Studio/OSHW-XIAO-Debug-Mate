@@ -80,7 +80,58 @@ xcopy /E /I ..\1_Libraries\* "%USERPROFILE%\Documents\Arduino\libraries\"
 cp -r ../1_Libraries/* ~/Arduino/libraries/
 ```
 
-### Step 2: Configure Arduino IDE
+### Step 2: Modify ESP32 Core Files
+
+> ⚠️ **Important:** You must modify the ESP32 Arduino core files to disable default USB initialization, otherwise TinyUSB will conflict with the default USB stack.
+
+**Locate the ESP32 core files:**
+
+| OS | Path |
+|----|------|
+| 🍎 **macOS** | `~/Library/Arduino15/packages/esp32/hardware/esp32/3.1.3/cores/esp32/` |
+| 🪟 **Windows** | `%LOCALAPPDATA%\Arduino15\packages\esp32\hardware\esp32\3.1.3\cores\esp32\` |
+| 🐧 **Linux** | `~/.arduino15/packages/esp32/hardware/esp32/3.1.3/cores/esp32/` |
+
+**Modify the following 3 files:**
+
+#### File 1: `USB.cpp` (around line 352)
+```cpp
+// Before:
+ESPUSB USB;
+
+// After:
+// ESPUSB USB;
+```
+
+#### File 2: `USB.h` (around line 119)
+```cpp
+// Before:
+extern ESPUSB USB;
+
+// After:
+// extern ESPUSB USB;
+```
+
+#### File 3: `main.cpp` (around lines 98 and 101)
+```cpp
+// Before:
+#if ARDUINO_USB_DFU_ON_BOOT && !ARDUINO_USB_MODE
+    USB.enableDFU();
+#endif
+#if ARDUINO_USB_ON_BOOT && !ARDUINO_USB_MODE
+    USB.begin();
+#endif
+
+// After:
+#if ARDUINO_USB_DFU_ON_BOOT && !ARDUINO_USB_MODE
+    // USB.enableDFU();
+#endif
+#if ARDUINO_USB_ON_BOOT && !ARDUINO_USB_MODE
+    // USB.begin();
+#endif
+```
+
+### Step 3: Configure Arduino IDE
 
 Configure the following settings in Arduino IDE:
 
@@ -91,7 +142,7 @@ Configure the following settings in Arduino IDE:
 | **PSRAM** | OPI PSRAM |
 | **USB Mode** | USB-OTG (TinyUSB) |
 
-### Step 3: Open and Upload
+### Step 4: Open and Upload
 
 1. In Arduino IDE, go to **File → Examples → Seeed All-in-one Debugger → main**
 2. Or open `examples/main/main.ino` directly
@@ -228,6 +279,14 @@ If Arduino IDE can't find the library:
 1. Ensure all dependencies from `1_Libraries/` are installed
 2. Check that ESP32 board package version is 3.1.3
 3. Verify Arduino IDE settings match the table above
+4. **If you see USB-related errors:** Make sure you've modified the ESP32 core files (see Step 2)
+
+### USB Conflict / TinyUSB Not Working
+
+If DAPLink or USB functionality doesn't work:
+1. Verify you've commented out the USB initialization in the ESP32 core files
+2. Make sure you modified all 3 files: `USB.cpp`, `USB.h`, and `main.cpp`
+3. Restart Arduino IDE after modifying core files
 
 ### Upload Failed
 
