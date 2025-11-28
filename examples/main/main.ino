@@ -141,7 +141,10 @@ void initINA228() {
 
 void setup() {
     // 硬件初始化
+<<<<<<<< HEAD:03 Firmware Source Code/examples/main/main.ino
+========
     ShowSerial.begin(FunctionBaudState::m_baudRate);
+>>>>>>>> 0a892d2 (First version):examples/main/main.ino
     initSerial();
     initLED();
     initLVGL();

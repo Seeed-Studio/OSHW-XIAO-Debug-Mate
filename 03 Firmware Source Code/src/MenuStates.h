@@ -57,6 +57,7 @@ protected:
     
 public:
     FunctionState(const char* title) : m_title(title) {}
+    virtual ~FunctionState() {}
     
     // 共用实现
     virtual void onEnter();

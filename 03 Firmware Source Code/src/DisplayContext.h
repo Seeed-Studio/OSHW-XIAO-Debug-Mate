@@ -5,8 +5,6 @@
 #include "semphr.h"
 #include "Global.h"
 
-#include <Arduino.h>
-#include <esp_arduino_version.h>
 #include <Adafruit_INA228.h>
 #include <lvgl.h>
 
@@ -50,20 +48,6 @@ public:
         } else if(mos1 == 1 && mos2 == 1) {
             m_ina228->setShunt(0.1075482, 1.5);
         }
-    }
-
-    void setBrightness(uint8_t percent) {
-        if (percent > 100) percent = 100;
-        int duty = (percent * 255) / 100;
-
-#if ESP_ARDUINO_VERSION >= ESP_ARDUINO_VERSION_VAL(3, 0, 0)
-        ledcAttach(TFT_BL, 5000, 8);
-        ledcWrite(TFT_BL, duty);
-#else
-        ledcSetup(0, 5000, 8);
-        ledcAttachPin(TFT_BL, 0);
-        ledcWrite(0, duty);
-#endif
     }
 
     Adafruit_INA228* getINA228() {
