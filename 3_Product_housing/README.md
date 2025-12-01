@@ -15,9 +15,7 @@ This directory contains 3D printable enclosure files for the XIAO Debug Mate.
 ## 🖨️ Printing Recommendations
 
 ### Material
-- **Recommended:** ABS (Acrylonitrile Butadiene Styrene)
-- **Alternative:** PETG, ASA
-- **Not Recommended:** PLA (may warp with heat from electronics)
+- **Recommended:** PLA
 
 ### Color Scheme
 | Part | Recommended Color |
