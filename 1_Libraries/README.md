@@ -4,6 +4,8 @@ This directory contains all the Arduino libraries required for the XIAO Debug Ma
 
 ## 📦 Installation
 
+### Option 1: Use Pre-packaged Libraries (Recommended)
+
 Copy all contents of this directory to your Arduino libraries folder:
 
 ```bash
@@ -17,39 +19,99 @@ xcopy /E /I * "%USERPROFILE%\Documents\Arduino\libraries\"
 cp -r * ~/Arduino/libraries/
 ```
 
+### Option 2: Install from Source
+
+#### Step 1: Install from Arduino Library Manager
+
+Open Arduino IDE → **Sketch → Include Library → Manage Libraries**, then install:
+
+| Library | Recommended Version |
+|---------|---------------------|
+| **Adafruit INA228 Library** | 2.0.1 |
+| **Adafruit TinyUSB Library** | 3.4.4 |
+
+#### Step 2: Clone Custom Libraries
+
+These libraries require specific branches. Open terminal and run:
+
+```bash
+# Go to the library directory
+cd ~/Documents/Arduino/libraries
+
+# DAPLink (custom ESP32-S3 branch)
+git clone --depth 1 https://github.com/Lesords/Seeed_Arduino_DAPLink.git -b feat/ESP32S3
+
+# TFT (custom ST7789-EVT branch)
+git clone --depth 1 https://github.com/Lesords/TFT_eSPI.git -b feat/ST7789-EVT
+
+# LVGL (custom Debugger branch)
+git clone --depth 1 https://github.com/Lesords/lvgl.git -b feat/Debugger
+```
+
 ## 📋 Library Overview
 
-| Library | Version | Description | License |
-|---------|---------|-------------|---------|
-| **Adafruit_BusIO** | - | I2C and SPI abstraction layer | MIT |
-| **Adafruit_INA228_Library** | 2.0.1+ | High-precision power monitor driver | MIT |
-| **Adafruit_NeoPixel** | - | WS2812 RGB LED driver | LGPL |
-| **Adafruit_SPIFlash** | - | SPI Flash memory support | MIT |
-| **Adafruit_TinyUSB_Library** | 3.4.4+ | USB device stack for Arduino | MIT |
-| **I2C_EEPROM** | 1.9.4 | I2C EEPROM read/write library | MIT |
-| **lvgl_debug_mate** | 9.x | Light and Versatile Graphics Library | MIT |
-| **MIDI_Library** | - | MIDI communication support | MIT |
-| **SdFat_-_Adafruit_Fork** | - | SD card FAT filesystem | MIT |
-| **Seeed_Arduino_DAPLink** | - | CMSIS-DAP debugger implementation | Apache 2.0 |
-| **TFT_eSPI_Debug_Mate** | - | TFT display driver (ST7789) | BSD |
+| Library | Version / Branch | Source | Description |
+|---------|------------------|--------|-------------|
+| **Seeed_Arduino_DAPLink** | `feat/ESP32S3` | [Lesords/Seeed_Arduino_DAPLink](https://github.com/Lesords/Seeed_Arduino_DAPLink/tree/feat/ESP32S3) | CMSIS-DAP debugger (ESP32-S3 fork) |
+| **TFT_eSPI** | `feat/ST7789-EVT` | [Lesords/TFT_eSPI](https://github.com/Lesords/TFT_eSPI/tree/feat/ST7789-EVT) | TFT display driver (custom fork) |
+| **lvgl** | `feat/Debugger` | [Lesords/lvgl](https://github.com/Lesords/lvgl/tree/feat/Debugger) | LVGL graphics library (custom fork) |
+| **Adafruit_INA228** | 2.0.1 | [adafruit/Adafruit_INA228](https://github.com/adafruit/Adafruit_INA228) | Power monitor driver |
+| **Adafruit_TinyUSB** | 3.4.4 | [adafruit/Adafruit_TinyUSB_Arduino](https://github.com/adafruit/Adafruit_TinyUSB_Arduino) | USB device stack |
+| **Adafruit_BusIO** | 1.17.4 | [adafruit/Adafruit_BusIO](https://github.com/adafruit/Adafruit_BusIO) | I2C/SPI abstraction layer |
+| **I2C_EEPROM** | 1.9.4 | [RobTillaart/I2C_EEPROM](https://github.com/RobTillaart/I2C_EEPROM) | I2C EEPROM library |
+| **Adafruit_NeoPixel** | 1.3.3 | [adafruit/Adafruit_NeoPixel](https://github.com/adafruit/Adafruit_NeoPixel) | RGB LED driver |
+| **Adafruit_SPIFlash** | 5.1.1 | [adafruit/Adafruit_SPIFlash](https://github.com/adafruit/Adafruit_SPIFlash) | SPI Flash support |
+| **SdFat** | 2.3.54 | [adafruit/SdFat](https://github.com/adafruit/SdFat) | SD card FAT filesystem |
+| **MIDI_Library** | 5.0.2 | [FortySevenEffects/arduino_midi_library](https://github.com/FortySevenEffects/arduino_midi_library) | MIDI communication |
+
+## ⚠️ Important: Custom Library Branches
+
+The following libraries **must** use specific custom branches to work with XIAO Debug Mate:
+
+| Library | Required Branch | Why |
+|---------|-----------------|-----|
+| **Seeed_Arduino_DAPLink** | `feat/ESP32S3` | ESP32-S3 specific implementation |
+| **TFT_eSPI** | `feat/ST7789-EVT` | Pre-configured for Debug Mate display |
+| **lvgl** | `feat/Debugger` | Custom UI components and boot animation |
+
+> ⚠️ Using the original/main branches will **not** work!
 
 ## 🔍 Library Details
 
-### 🖥️ TFT_eSPI_Debug_Mate
+### 🐞 Seeed_Arduino_DAPLink
 
-Custom fork of TFT_eSPI optimized for the XIAO Debug Mate display.
+Custom fork with ESP32-S3 support for CMSIS-DAP debugging.
+
+**Branch:** `feat/ESP32S3`  
+**Source:** https://github.com/Lesords/Seeed_Arduino_DAPLink
+
+**Supported Protocols:**
+- SWD (Serial Wire Debug)
+
+**Supported Targets:**
+- ARM Cortex-M0/M0+
+- ARM Cortex-M3/M4
+- ARM Cortex-M33
+
+### 🖥️ TFT_eSPI
+
+Custom fork optimized for the XIAO Debug Mate display.
+
+**Branch:** `feat/ST7789-EVT`  
+**Source:** https://github.com/Lesords/TFT_eSPI
 
 **Features:**
-- ST7789 driver support
+- ST7789 driver support (240×296 resolution)
 - Hardware SPI acceleration
 - LVGL integration ready
-- Rotation support
+- Pre-configured `User_Setup.h`
 
-**Configuration:** Pre-configured in `User_Setup.h` for Debug Mate hardware.
-
-### 🎨 lvgl_debug_mate
+### 🎨 lvgl (LVGL Debug Mate)
 
 LVGL (Light and Versatile Graphics Library) customized for Debug Mate.
+
+**Branch:** `feat/Debugger`  
+**Source:** https://github.com/Lesords/lvgl
 
 **Features:**
 - Animated boot screen
@@ -59,22 +121,12 @@ LVGL (Light and Versatile Graphics Library) customized for Debug Mate.
 
 **Configuration:** Settings in `lv_conf.h`
 
-### 🐞 Seeed_Arduino_DAPLink
-
-Implementation of ARM CMSIS-DAP protocol for debugging target devices.
-
-**Supported Protocols:**
-- SWD (Serial Wire Debug)
-- JTAG (partial)
-
-**Supported Targets:**
-- ARM Cortex-M0/M0+
-- ARM Cortex-M3/M4
-- ARM Cortex-M33
-
-### ⚡ Adafruit_INA228_Library
+### ⚡ Adafruit_INA228
 
 Driver for the INA228 high-precision power monitor IC.
+
+**Version:** 2.0.1 (from Arduino Library Manager)  
+**Source:** https://github.com/adafruit/Adafruit_INA228
 
 **Capabilities:**
 - Voltage measurement: 0-85V
@@ -88,9 +140,12 @@ ina228.setShunt(0.068, 1.0);  // 68mΩ shunt, 1A max
 ina228.setAveragingCount(INA228_COUNT_16);
 ```
 
-### 🔌 Adafruit_TinyUSB_Library
+### 🔌 Adafruit_TinyUSB
 
 USB device stack enabling USB functionality.
+
+**Version:** 3.4.4 (from Arduino Library Manager)  
+**Source:** https://github.com/adafruit/Adafruit_TinyUSB_Arduino
 
 **Features Used:**
 - USB CDC (Serial)
@@ -101,19 +156,13 @@ USB device stack enabling USB functionality.
 
 Library for reading/writing I2C EEPROM chips.
 
+**Version:** 1.9.4  
+**Source:** https://github.com/RobTillaart/I2C_EEPROM
+
 **Usage:**
 - Store user settings
 - Persist baud rate configuration
 - Save calibration data
-
-### 🌈 Adafruit_NeoPixel
-
-Control WS2812-compatible RGB LEDs.
-
-**Usage:**
-- Status indication
-- Mode visualization
-- Debug feedback
 
 ## ⚙️ Configuration Files
 
@@ -128,39 +177,18 @@ Main LVGL configuration file. Key settings:
 #define LV_FONT_MONTSERRAT_14 1
 ```
 
-## 🔗 Original Library Sources
-
-If you need to update or modify these libraries, here are the original sources:
-
-| Library | Repository |
-|---------|------------|
-| Adafruit_BusIO | https://github.com/adafruit/Adafruit_BusIO |
-| Adafruit_INA228 | https://github.com/adafruit/Adafruit_INA228 |
-| Adafruit_NeoPixel | https://github.com/adafruit/Adafruit_NeoPixel |
-| Adafruit_SPIFlash | https://github.com/adafruit/Adafruit_SPIFlash |
-| Adafruit_TinyUSB | https://github.com/adafruit/Adafruit_TinyUSB_Arduino |
-| I2C_EEPROM | https://github.com/RobTillaart/I2C_EEPROM |
-| LVGL | https://github.com/lvgl/lvgl |
-| MIDI Library | https://github.com/FortySevenEffects/arduino_midi_library |
-| SdFat | https://github.com/adafruit/SdFat |
-| Seeed DAPLink | https://github.com/Seeed-Studio/Seeed_Arduino_DAPLink |
-| TFT_eSPI | https://github.com/Bodmer/TFT_eSPI |
-
-## ⚠️ Important Notes
-
-1. **Use these specific versions** - The libraries in this folder are tested and configured for XIAO Debug Mate
-2. **Don't mix versions** - Using different library versions may cause compatibility issues
-3. **Custom configurations** - Some libraries have been customized for this hardware
-
 ## 🛠️ Troubleshooting
 
 ### Library Not Found Error
 Make sure all libraries are copied to the correct Arduino libraries folder.
 
 ### Compilation Errors
-1. Remove any duplicate libraries from your Arduino libraries folder
-2. Restart Arduino IDE after installing libraries
+1. Ensure you're using the correct custom branches (not main/master)
+2. Remove any duplicate libraries from your Arduino libraries folder
+3. Restart Arduino IDE after installing libraries
 
 ### Display Not Working
-Check that `TFT_eSPI_Debug_Mate` is being used, not the standard `TFT_eSPI` library.
+Check that you're using `TFT_eSPI` from the `feat/ST7789-EVT` branch, not the standard library.
 
+### DAPLink Not Working
+Ensure you're using `Seeed_Arduino_DAPLink` from the `feat/ESP32S3` branch.
