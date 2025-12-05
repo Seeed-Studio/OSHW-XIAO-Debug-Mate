@@ -42,6 +42,7 @@ static uint32_t my_tick(void) {
 }
 
 void initSerial() {
+    ShowSerial.begin(FunctionBaudState::m_baudRate);
     COMSerial.begin(FunctionBaudState::m_baudRate);
 
     pinMode(UART_SWITCH, OUTPUT);
@@ -146,7 +147,6 @@ void setup() {
     displayContext.setBrightness(70);
     initStyle();
     initDapLink();
-    ShowSerial.begin(FunctionBaudState::m_baudRate);
     initINA228();
     initValueFromEEPROM();
     pinMode(BOOT_BTN, INPUT_PULLUP);
