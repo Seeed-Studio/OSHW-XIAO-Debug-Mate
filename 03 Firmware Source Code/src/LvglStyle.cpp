@@ -5,6 +5,7 @@ lv_style_t style_rxtx_bg;
 lv_style_t style_focus_bg;
 lv_style_t style_focus_uart_bg;
 lv_style_t style_nofocus_bg;
+lv_style_t style_uart_area_bg;
 lv_style_t style_nofocus_uart_bg;
 lv_style_t style_led;
 lv_style_t style_uart_line;
@@ -58,6 +59,14 @@ void initStyle() {
     lv_style_set_pad_all(&style_nofocus_bg, 0);
     lv_style_set_border_width(&style_nofocus_bg, 2);
     lv_style_set_border_color(&style_nofocus_bg, lv_color_hex(0x000000));
+
+    lv_style_init(&style_uart_area_bg);
+    lv_style_set_bg_color(&style_uart_area_bg, lv_color_hex(0x000000));
+    lv_style_set_bg_opa(&style_uart_area_bg, LV_OPA_COVER);
+    lv_style_set_border_color(&style_uart_area_bg, lv_color_hex(0x444444)); 
+    lv_style_set_border_width(&style_uart_area_bg, 1);      // 1px 细线，精致
+    lv_style_set_border_side(&style_uart_area_bg, LV_BORDER_SIDE_FULL);
+    lv_style_set_radius(&style_uart_area_bg, 10);
 
     lv_style_init(&style_nofocus_uart_bg);
     lv_style_set_bg_color(&style_nofocus_uart_bg, lv_color_hex(0x232325));
