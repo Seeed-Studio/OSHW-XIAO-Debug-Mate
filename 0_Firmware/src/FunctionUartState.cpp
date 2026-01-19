@@ -27,30 +27,48 @@ FunctionUartState::FunctionUartState()
 
 void FunctionUartState::uartTaskFunc(void* params) {
     FunctionUartState* uartState = static_cast<FunctionUartState*> (params);
+    const int BUFFER_SIZE = 256;
+    char buffer[BUFFER_SIZE];
 
     while (true) {
+        bool hasData = false;
+
         // RX, From XIAO to Debugger
-        if (COMSerial.available()) {
-            char c = COMSerial.read();
+        int rxAvail = COMSerial.available();
+        if (rxAvail > 0) {
+            int count = (rxAvail < BUFFER_SIZE) ? rxAvail : BUFFER_SIZE;
+            int n = COMSerial.readBytes(buffer, count);
 
             if (uartState->m_isUartInfoDisplay) {
-                xQueueSendToBack(uartState->m_rxQueue, &c, 0);
+                for (int i = 0; i < n; i++) {
+                    xQueueSendToBack(uartState->m_rxQueue, &buffer[i], 0);
+                }
             } else {
-                ShowSerial.write(c);
+                ShowSerial.write(buffer, n);
             }
+            hasData = true;
         }
 
         // TX, From PC to XIAO
-        if (ShowSerial.available()) {
-            char c = ShowSerial.read();
+        int txAvail = ShowSerial.available();
+        if (txAvail > 0) {
+            int count = (txAvail < BUFFER_SIZE) ? txAvail : BUFFER_SIZE;
+            int n = ShowSerial.readBytes(buffer, count);
 
-            COMSerial.write(c);
+            COMSerial.write(buffer, n);
             if (uartState->m_isUartInfoDisplay) {
-                xQueueSendToBack(uartState->m_txQueue, &c, 0);
+                for (int i = 0; i < n; i++) {
+                    xQueueSendToBack(uartState->m_txQueue, &buffer[i], 0);
+                }
             }
+            hasData = true;
         }
 
-        vTaskDelay(pdMS_TO_TICKS(30));
+        if (hasData) {
+            vTaskDelay(pdMS_TO_TICKS(3));
+        } else {
+            vTaskDelay(pdMS_TO_TICKS(30));
+        }
     }
 }
 
