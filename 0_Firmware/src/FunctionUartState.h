@@ -48,6 +48,8 @@ private:
     TaskHandle_t m_uartTask;
     QueueHandle_t m_rxQueue;
     QueueHandle_t m_txQueue;
+    volatile uint32_t m_lastRxTime;
+    volatile uint32_t m_lastTxTime;
     int m_isUartInfoDisplay;
     int m_currentSelection;
 
