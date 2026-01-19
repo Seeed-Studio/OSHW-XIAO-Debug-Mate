@@ -1,7 +1,7 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
-#define FIRMWARE_VERSION "v1.1"
+#define FIRMWARE_VERSION "v1.2"
 
 #define BOOT_BTN 0
 #define ENCODER_PINA 18
