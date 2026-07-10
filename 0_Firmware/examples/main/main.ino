@@ -64,7 +64,7 @@ void animBootCompleted(lv_anim_t* anim) {
 void initAnimBoot(lv_obj_t* scr) {
     lv_obj_t* animimg = lv_animimg_create(scr);
     lv_obj_center(animimg);
-    lv_animimg_set_src(animimg, (const void **) anim_boot_imgs, BOOT_FRAME_SIZE, false);
+    lv_animimg_set_src(animimg, (const void **) anim_boot_imgs, BOOT_FRAME_SIZE);//, false);
     lv_animimg_set_duration(animimg, 4850);
     lv_animimg_set_repeat_count(animimg, 1);
     lv_animimg_set_completed_cb(animimg, animBootCompleted);
@@ -139,7 +139,18 @@ void initINA228() {
     ina228.setCurrentConversionTime(INA228_TIME_280_us);
 }
 
+char esp32SerialNumber[17];
+
 void setup() {
+    //Fetch 64-bit eFuse MAC address from the ESP32-S3 core
+    uint64_t chipId = ESP.getEfuseMac();
+
+    //Parse it into a 16-character hexadecimal string
+    snprintf(esp32SerialNumber, sizeof(esp32SerialNumber), "%04X%08X", (uint16_t)(chipId >> 32), (uint32_t)chipId);
+
+    //Inject into the device descriptor 
+    TinyUSBDevice.setSerialDescriptor(esp32SerialNumber);
+
     // 硬件初始化
     ShowSerial.begin(FunctionBaudState::m_baudRate);
     initSerial();
