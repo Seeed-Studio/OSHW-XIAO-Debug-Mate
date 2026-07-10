@@ -21,6 +21,8 @@
 #define DRAW_BUF_SIZE (TFT_HOR_RES * TFT_VER_RES / 10 * (LV_COLOR_DEPTH / 8))
 uint32_t draw_buf[DRAW_BUF_SIZE / 4];
 
+char esp32SerialNumber[13];
+
 // 创建显示上下文
 DisplayContext displayContext;
 
@@ -140,6 +142,15 @@ void initINA228() {
 }
 
 void setup() {
+    // Fetch 64-bit eFuse MAC address from the ESP32-S3 core
+    uint64_t chipId = ESP.getEfuseMac();
+
+    // Parse it into a 12-character hexadecimal string
+    snprintf(esp32SerialNumber, sizeof(esp32SerialNumber), "%04X%08X", (uint16_t)(chipId >> 32), (uint32_t)chipId);
+
+    // Inject into the device descriptor
+    TinyUSBDevice.setSerialDescriptor(esp32SerialNumber);
+
     // 硬件初始化
     ShowSerial.begin(FunctionBaudState::m_baudRate);
     initSerial();
