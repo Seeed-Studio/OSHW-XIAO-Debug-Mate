@@ -3,6 +3,9 @@
 
 #define FIRMWARE_VERSION "v1.2"
 
+/* --- Debug switches (uncomment to enable) --- */
+// #define POWER_DEBUG
+
 #define BOOT_BTN 0
 #define ENCODER_PINA 18
 #define ENCODER_PINB 17

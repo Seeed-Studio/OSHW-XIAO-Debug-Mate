@@ -463,6 +463,10 @@ void FunctionPowerState::updateDisplay(DisplayContext* display)
     // W
     power = vol * cur;
 
+#ifdef POWER_DEBUG
+    ShowSerial.printf("%.3f, %.6f, %.3f\n", vol, cur, power);
+#endif
+
     if (m_currentIndex == POWER_INTERFACE_COMPLEX && !m_startTime) {
         m_startTime = millis();
         m_lastTime = m_startTime;
